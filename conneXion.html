@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* Full-screen futuristic animated background */
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Orbitron", sans-serif;
+      color: #808080;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #0ff 0, #001020 40%, #000 100%);
+      position: relative;
+    }
+
+    /* Animated gradient layer */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(120deg, #001f3f, #000814, #001f3f, #000);
+      background-size: 300% 300%;
+      animation: moveGradient 18s ease-in-out infinite;
+      opacity: 0.7;
+      z-index: -3;
+    }
+
+    @keyframes moveGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Subtle glowing grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 255, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.25;
+      z-index: -2;
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(0, 200, 255, 0.9);
+      box-shadow: 0 0 12px rgba(0, 200, 255, 0.9);
+      animation: floatUp 12s linear infinite;
+      z-index: -1;
+    }
+
+    .particle:nth-child(1) { left: 10%; animation-duration: 14s; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 30%; animation-duration: 18s; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 50%; animation-duration: 16s; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 70%; animation-duration: 20s; animation-delay: 1s; }
+    .particle:nth-child(5) { left: 90%; animation-duration: 22s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { top: 110%; opacity: 0; transform: translateX(0); }
+      20% { opacity: 1; }
+      100% { top: -10%; opacity: 0; transform: translateX(-20px); }
+    }
+
+    /* Your button, centered in this world */
+    .text-bubble {
+      display: inline-block;
+      background-color: #001f3f;
+      padding: 25px 40px;
+      border-radius: 100px;
+      font-size: 50px;
+      max-width: 500px;
+      color: white;
+      text-decoration: none;
+      box-shadow: 0 0 18px rgba(0, 150, 255, 0.7);
+      border: 1px solid #2a2a2a;
+      transition: 0.2s;
+    }
+
+    .text-bubble:hover {
+      background-color: #003366;
+      box-shadow: 0 0 28px rgba(0, 220, 255, 0.9);
+      transform: translateY(-5px) scale(1.02);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Wallpaper layers -->
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+
+  <!-- Your button -->
+  <a class="text-bubble" href="intro.html">
+    <b>𝐂𝐨𝐧𝐧𝐞𝐗𝐢𝐨𝐧</b>
+  </a>
+
+</body>
+</html>
