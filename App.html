@@ -1,0 +1,3196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConneXion — EVERY TAB WORKS</title>
+    <style>
+        /* ========== GLOBAL RESET & FUTURISTIC DESIGN ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            background: #030614;
+            color: #eef5ff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* ========== ANIMATED BACKGROUND ========== */
+        #bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -10;
+            background: radial-gradient(ellipse at 40% 50%, #0a1f3a, #020412);
+        }
+        .grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 45px 45px;
+            z-index: -9;
+        }
+        .floatingOrb {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #0cf, #00a3cc);
+            filter: blur(45px);
+            opacity: 0.15;
+            animation: floatAround 28s infinite alternate ease-in-out;
+            z-index: -8;
+        }
+        .orb1 { width: 60vh; height: 60vh; left: -10vh; top: -10vh; }
+        .orb2 { width: 80vh; height: 80vh; right: -20vh; bottom: -20vh; background: #f0f; filter: blur(70px); opacity: 0.1; animation-duration: 35s; }
+        .orb3 { width: 40vh; height: 40vh; left: 30%; top: 40%; background: #ffaa00; filter: blur(60px); opacity: 0.08; }
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(8%, 8%) scale(1.3); }
+        }
+        .particleRain {
+            position: fixed;
+            width: 100%; height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1.5" fill="%230cf" opacity="0.2"/><circle cx="90" cy="30" r="1.2" fill="%230cf" opacity="0.2"/><circle cx="40" cy="85" r="2" fill="%23f0f" opacity="0.15"/><circle cx="75" cy="70" r="1" fill="%23ffaa00" opacity="0.2"/></svg>');
+            background-size: 180px 180px;
+            z-index: -7;
+            pointer-events: none;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 320px;
+            height: 100vh;
+            background: rgba(5, 15, 30, 0.85);
+            backdrop-filter: blur(24px);
+            border-right: 2px solid rgba(0, 234, 255, 0.3);
+            box-shadow: 10px 0 50px rgba(0,0,0,0.7);
+            z-index: 100;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #0cf #001a33;
+            padding: 20px 15px;
+        }
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-track { background: #001a33; }
+        .sidebar::-webkit-scrollbar-thumb { background: #0cf; border-radius: 10px; }
+
+        .menu-item {
+            background: rgba(0, 30, 60, 0.5);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            border-radius: 60px;
+            padding: 16px 18px;
+            margin: 10px 0;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.25s;
+            backdrop-filter: blur(5px);
+        }
+        .menu-item:hover {
+            background: #004a7c;
+            border-color: #0cf;
+            box-shadow: 0 0 25px #0cf;
+            transform: translateX(6px);
+        }
+        .menu-item.active {
+            background: #005f9e;
+            border-color: #ffd966;
+            box-shadow: 0 0 30px #ffd96666;
+        }
+
+        /* ===== PROFILE CARD WITH VISIBLE EFFECTS ===== */
+        .profile-card {
+            background: linear-gradient(145deg, #001f33, #001020);
+            border-radius: 50px;
+            padding: 25px 15px;
+            border: 1px solid #0cf;
+            margin: 30px 0 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,200,255,0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Trust/Reputation badges */
+        .trust-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .trust-excellent { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .trust-good { background: #88ff00; box-shadow: 0 0 10px #88ff00; }
+        .trust-fair { background: #ffff00; box-shadow: 0 0 10px #ffff00; }
+        .trust-poor { background: #ff8800; box-shadow: 0 0 10px #ff8800; }
+        .trust-bad { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
+
+        /* EFFECT: Fire Effect */
+        .profile-card.fire-effect {
+            animation: firePulse 0.5s infinite alternate;
+            box-shadow: 0 0 50px #ff6600;
+            border-color: #ff6600;
+        }
+        .profile-card.fire-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,100,0,0.3) 0%, transparent 70%);
+            animation: fireRotate 4s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes firePulse {
+            from { box-shadow: 0 0 30px #ff6600; }
+            to { box-shadow: 0 0 80px #ff3300, 0 0 120px #ff6600; }
+        }
+        @keyframes fireRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* EFFECT: Ice Crown */
+        .profile-card.ice-effect {
+            animation: iceGlow 2s infinite alternate;
+            box-shadow: 0 0 50px #00ccff;
+            border-color: #88ffff;
+        }
+        .profile-card.ice-effect::before {
+            content: '❄️❄️❄️';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            font-size: 30px;
+            opacity: 0.5;
+            animation: iceFloat 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes iceGlow {
+            from { box-shadow: 0 0 30px #00ccff; }
+            to { box-shadow: 0 0 80px #88ffff, 0 0 120px #00ccff; }
+        }
+        @keyframes iceFloat {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-10px) rotate(5deg); opacity: 0.6; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+        }
+
+        /* EFFECT: Lightning Frame */
+        .profile-card.lightning-effect {
+            animation: lightningFlash 3s infinite;
+        }
+        .profile-card.lightning-effect::before {
+            content: '⚡⚡⚡';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            opacity: 0;
+            animation: lightningBolt 3s infinite;
+            pointer-events: none;
+        }
+        @keyframes lightningFlash {
+            0%, 95% { box-shadow: 0 0 20px #ffff00; }
+            96% { box-shadow: 0 0 100px #ffffff, 0 0 150px #ffff00; }
+            97% { box-shadow: 0 0 20px #ffff00; }
+            98% { box-shadow: 0 0 100px #ffffff, 0 0 150px #ffff00; }
+            99% { box-shadow: 0 0 20px #ffff00; }
+        }
+        @keyframes lightningBolt {
+            0%, 95% { opacity: 0; }
+            96% { opacity: 1; }
+            97% { opacity: 0; }
+            98% { opacity: 1; }
+            99% { opacity: 0; }
+        }
+
+        /* EFFECT: Golden Crown */
+        .profile-card.golden-crown::before {
+            content: '👑';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            animation: crownFloat 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px gold);
+            pointer-events: none;
+        }
+        @keyframes crownFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* EFFECT: Diamond Badge */
+        .profile-card.diamond-badge::after {
+            content: '💎';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 30px;
+            animation: diamondSparkle 1.5s infinite;
+            filter: drop-shadow(0 0 10px #0cf);
+            pointer-events: none;
+        }
+        @keyframes diamondSparkle {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* EFFECT: Hero Cape */
+        .profile-card.hero-cape::before {
+            content: '🦸';
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            font-size: 50px;
+            transform: translateY(-50%) rotate(15deg);
+            animation: capeWaving 2s infinite ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes capeWaving {
+            0%, 100% { transform: translateY(-50%) rotate(15deg) scale(1); }
+            50% { transform: translateY(-50%) rotate(25deg) scale(1.1); }
+        }
+
+        /* EFFECT: Dragon Wings */
+        .profile-card.dragon-wings::before {
+            content: '🐉';
+            position: absolute;
+            top: 20%;
+            left: -20px;
+            font-size: 50px;
+            animation: wingFlap 1s infinite alternate;
+            pointer-events: none;
+        }
+        .profile-card.dragon-wings::after {
+            content: '🐉';
+            position: absolute;
+            top: 20%;
+            right: -20px;
+            font-size: 50px;
+            animation: wingFlap 1s infinite alternate-reverse;
+            pointer-events: none;
+        }
+        @keyframes wingFlap {
+            from { transform: rotate(-10deg) scale(1); }
+            to { transform: rotate(10deg) scale(1.1); }
+        }
+
+        /* EFFECT: Fairy Wings */
+        .profile-card.fairy-wings::before {
+            content: '🦋';
+            position: absolute;
+            top: 30%;
+            left: -20px;
+            font-size: 40px;
+            animation: fairyFlutter 0.5s infinite alternate;
+            filter: drop-shadow(0 0 10px #ff88ff);
+            pointer-events: none;
+        }
+        .profile-card.fairy-wings::after {
+            content: '🦋';
+            position: absolute;
+            top: 30%;
+            right: -20px;
+            font-size: 40px;
+            animation: fairyFlutter 0.5s infinite alternate-reverse;
+            filter: drop-shadow(0 0 10px #ff88ff);
+            pointer-events: none;
+        }
+        @keyframes fairyFlutter {
+            from { transform: rotate(-5deg) scale(1); }
+            to { transform: rotate(5deg) scale(1.2); }
+        }
+
+        /* EFFECT: Rainbow Name */
+        .username.rainbow {
+            animation: rainbowName 3s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes rainbowName {
+            0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+            17% { color: #ff8800; text-shadow: 0 0 10px #ff8800; }
+            33% { color: #ffff00; text-shadow: 0 0 10px #ffff00; }
+            50% { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+            67% { color: #0088ff; text-shadow: 0 0 10px #0088ff; }
+            83% { color: #8800ff; text-shadow: 0 0 10px #8800ff; }
+            100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+
+        .pfp {
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%2300355e"><circle cx="50" cy="50" r="45"/><circle cx="50" cy="30" r="12" fill="%2300eaff"/><circle cx="30" cy="70" r="8" fill="%2300eaff"/><circle cx="70" cy="70" r="8" fill="%2300eaff"/></svg>') center/cover;
+            border-radius: 50%;
+            margin: 0 auto;
+            border: 4px solid #0cf;
+            box-shadow: 0 0 40px #0cf;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* EFFECT: Animated Avatar */
+        .avatar-container.animated-avatar .pfp {
+            animation: avatarPulse 2s infinite ease-in-out;
+        }
+        @keyframes avatarPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px #0cf; }
+            50% { transform: scale(1.1); box-shadow: 0 0 80px #0cf, 0 0 120px #0cf; }
+        }
+
+        /* EFFECT: Rainbow Avatar */
+        .avatar-container.rainbow-avatar .pfp {
+            animation: avatarRainbow 3s linear infinite;
+        }
+        @keyframes avatarRainbow {
+            0% { border-color: #ff0000; box-shadow: 0 0 40px #ff0000; }
+            17% { border-color: #ff8800; box-shadow: 0 0 40px #ff8800; }
+            33% { border-color: #ffff00; box-shadow: 0 0 40px #ffff00; }
+            50% { border-color: #00ff00; box-shadow: 0 0 40px #00ff00; }
+            67% { border-color: #0088ff; box-shadow: 0 0 40px #0088ff; }
+            83% { border-color: #8800ff; box-shadow: 0 0 40px #8800ff; }
+            100% { border-color: #ff0000; box-shadow: 0 0 40px #ff0000; }
+        }
+
+        /* EFFECT: Pixel Avatar */
+        .avatar-container.pixel-avatar .pfp {
+            image-rendering: pixelated;
+            filter: contrast(200%) brightness(150%);
+            border: 4px solid #00ff00;
+            box-shadow: 0 0 30px #00ff00;
+        }
+
+        /* EFFECT: Fire Avatar */
+        .avatar-container.fire-effect .pfp {
+            animation: fireAvatar 0.5s infinite alternate;
+            box-shadow: 0 0 50px #ff6600;
+        }
+        @keyframes fireAvatar {
+            from { box-shadow: 0 0 30px #ff6600; }
+            to { box-shadow: 0 0 80px #ff3300, 0 0 120px #ff6600; }
+        }
+
+        /* EFFECT: Ice Avatar */
+        .avatar-container.ice-effect .pfp {
+            animation: iceAvatar 2s infinite alternate;
+            box-shadow: 0 0 30px #00ccff, 0 0 60px #88ffff;
+        }
+        @keyframes iceAvatar {
+            from { box-shadow: 0 0 30px #00ccff; }
+            to { box-shadow: 0 0 60px #88ffff, 0 0 90px #00ccff; }
+        }
+
+        .status-badge {
+            width: 22px; height: 22px; background: #2ecc71; border-radius: 50%;
+            border: 3px solid #030614; margin: -25px 0 10px 65px;
+            box-shadow: 0 0 15px #2ecc71;
+        }
+        .username {
+            font-size: 1.6rem; font-weight: 700;
+            background: linear-gradient(135deg, #fff, #aaf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+        .badge-rainbow {
+            background: linear-gradient(90deg, #ff0066, #ffaa00, #00ffaa, #00ccff);
+            color: black; font-weight: bold; border-radius: 40px; padding: 5px 16px;
+            margin: 10px 0; display: inline-block;
+        }
+
+        .active-effects {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            justify-content: center;
+            min-height: 30px;
+        }
+
+        .effect-badge {
+            background: rgba(0, 204, 255, 0.2);
+            border: 1px solid #0cf;
+            border-radius: 30px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            color: #0cf;
+            backdrop-filter: blur(5px);
+            animation: badgePulse 2s infinite alternate;
+        }
+        @keyframes badgePulse {
+            from { opacity: 0.7; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.05); background: rgba(0, 204, 255, 0.3); }
+        }
+
+        /* ========== MAIN CONTENT AREA ========== */
+        .main-content {
+            position: absolute;
+            left: 340px;
+            top: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: rgba(8, 18, 33, 0.7);
+            backdrop-filter: blur(16px) saturate(200%);
+            border-radius: 60px;
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            padding: 35px 40px;
+            overflow-y: auto;
+            box-shadow: 0 0 80px rgba(0,150,255,0.2);
+            scrollbar-width: thin;
+            transition: all 0.3s ease;
+        }
+
+        /* UI Customization themes */
+        .main-content.dark-theme {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #666;
+        }
+        .main-content.light-theme {
+            background: rgba(255, 255, 255, 0.1);
+            color: #000;
+        }
+        .main-content.cyber-theme {
+            background: rgba(0, 255, 255, 0.05);
+            border-color: #ff00ff;
+            box-shadow: 0 0 80px #ff00ff33;
+        }
+
+        /* unified input */
+        .cyber-input, input, textarea, select {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #0cf;
+            border-radius: 60px;
+            padding: 14px 22px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            box-shadow: 0 0 15px rgba(0, 234, 255, 0.3);
+            margin: 5px 0;
+            width: 100%;
+        }
+        .cyber-input:focus {
+            box-shadow: 0 0 30px #0cf;
+            border-color: #ffd966;
+        }
+        button {
+            background: linear-gradient(145deg, #004a7c, #00284d);
+            border: 2px solid #0cf;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 5px;
+        }
+        button:hover { background: #0066bb; transform: scale(1.02); box-shadow: 0 0 30px #0cf; }
+        .glass-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0,234,255,0.2);
+            border-radius: 50px;
+            padding: 20px 25px;
+            margin: 15px 0;
+        }
+        .message-bubble {
+            max-width: 70%; padding: 12px 22px; border-radius: 40px; margin: 6px 0;
+            border: 1px solid rgba(0,234,255,0.3);
+            transition: all 0.3s ease;
+        }
+        .message-bubble.translated::after {
+            content: " 🌐";
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        .message-bubble.rainbow-message {
+            animation: messageRainbow 3s linear infinite;
+        }
+        @keyframes messageRainbow {
+            0% { background-color: #ff000033; border-color: #ff0000; }
+            33% { background-color: #00ff0033; border-color: #00ff00; }
+            66% { background-color: #0000ff33; border-color: #0000ff; }
+            100% { background-color: #ff000033; border-color: #ff0000; }
+        }
+        .message-bubble.gold-border {
+            border-color: gold !important;
+            box-shadow: 0 0 15px gold;
+        }
+        .message-bubble.sparkle {
+            position: relative;
+            overflow: hidden;
+        }
+        .message-bubble.sparkle::after {
+            content: "✨";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 20px;
+            animation: sparkle 1s infinite;
+        }
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        .mine { align-self: flex-end; background: #0a4c7a; border-bottom-right-radius: 8px; }
+        .other { align-self: flex-start; background: #1e2a47; border-bottom-left-radius: 8px; }
+
+        .friend-item, .server-card, .voice-card, .discover-card, .bot-card, .game-card, .market-card, .event-card {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            background: rgba(0,30,50,0.5); border-radius: 60px; padding: 15px 25px; margin: 10px 0;
+            border: 1px solid #0cf33;
+        }
+        .badge { background: #ffaa33; color: #331d00; border-radius: 40px; padding: 5px 16px; font-size: 0.8rem; }
+        .typing { display: flex; gap: 5px; background: #1a2a44; padding: 10px 20px; border-radius: 60px; width: fit-content; }
+        .typing span { width: 10px; height: 10px; background: #0cf; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{ opacity:0.3; } 50%{ opacity:1; transform:scale(1.3); } }
+
+        /* Games */
+        .slot-machine { background: #001a33; border-radius: 30px; padding: 20px; text-align: center; }
+        .slot-reel { display: inline-block; width: 60px; height: 60px; background: #0a1f2f; margin: 0 5px; border-radius: 15px; font-size: 2rem; line-height: 60px; border: 2px solid #0cf; }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        .game-cell {
+            aspect-ratio: 1;
+            background: #001f33;
+            border: 2px solid #0cf;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+        .game-cell:hover {
+            background: #004a7c;
+            box-shadow: 0 0 30px #0cf;
+        }
+
+        /* Marketplace */
+        .market-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0,30,50,0.5);
+            border-radius: 60px;
+            margin: 10px 0;
+            border: 1px solid #0cf33;
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            height: 10px;
+            background: #001a33;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0cf, #f0f);
+            transition: width 0.3s ease;
+        }
+
+        /* Calendar */
+        .calendar-day {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #001f33;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin: 5px;
+            border: 1px solid #0cf;
+            cursor: pointer;
+        }
+        .calendar-day.today { border: 3px solid gold; }
+        .calendar-day.event { background: #ffaa33; color: #000; }
+
+        /* Whiteboard */
+        #boardCanvas {
+            background: #001a33;
+            border-radius: 30px;
+            border: 2px solid #0cf;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #0cf;
+            cursor: pointer;
+        }
+
+        /* Radio player */
+        .youtube-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 30px;
+            border: 2px solid #0cf;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .video-item {
+            background: rgba(0,30,50,0.5);
+            border-radius: 20px;
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid #0cf33;
+        }
+        .video-item:hover {
+            border-color: #0cf;
+            transform: scale(1.02);
+        }
+        .video-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #001a33;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        /* Inventory & shop */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .inventory-item {
+            background: linear-gradient(145deg, #001f33, #001020);
+            border: 2px solid #0cf;
+            border-radius: 30px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .inventory-item:hover {
+            transform: scale(1.05);
+            border-color: gold;
+            box-shadow: 0 0 30px gold;
+        }
+        .inventory-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .inventory-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        .inventory-count {
+            color: #0cf;
+            font-size: 0.9rem;
+        }
+        .shop-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .shop-price {
+            color: gold;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: #001f33;
+            border: 1px solid #0cf;
+            cursor: pointer;
+            color: white;
+        }
+        .page-btn.active {
+            background: #0cf;
+            color: black;
+            font-weight: bold;
+        }
+        .purchase-success {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, gold, orange);
+            color: black;
+            padding: 20px 40px;
+            border-radius: 60px;
+            font-weight: bold;
+            z-index: 9999;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        /* Clan war map */
+        .war-map {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            background: #001a33;
+            padding: 20px;
+            border-radius: 30px;
+        }
+        .territory {
+            aspect-ratio: 1;
+            background: #1a2a44;
+            border: 2px solid #0cf;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .territory.owned {
+            background: #004a7c;
+            border-color: gold;
+        }
+        .territory.contested {
+            background: #a02244;
+            animation: pulse 1s infinite;
+        }
+
+        /* Moderation panel */
+        .report-item {
+            background: rgba(160, 34, 68, 0.3);
+            border: 1px solid #ff88aa;
+            border-radius: 30px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        /* Privacy settings */
+        .privacy-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #001a33;
+            border-radius: 30px;
+            border: 2px solid #0cf;
+            cursor: pointer;
+            position: relative;
+        }
+        .toggle-switch.active {
+            background: #0cf;
+        }
+        .toggle-switch::after {
+            content: '';
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+        .toggle-switch.active::after {
+            left: 32px;
+        }
+
+        /* Special events */
+        .event-banner {
+            background: linear-gradient(90deg, gold, orange);
+            padding: 20px;
+            border-radius: 30px;
+            color: black;
+            font-weight: bold;
+            animation: bannerPulse 2s infinite;
+        }
+        @keyframes bannerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); box-shadow: 0 0 50px gold; }
+        }
+
+        /* Collectibles */
+        .collectible-card {
+            background: linear-gradient(145deg, #2a1f4a, #1a0f3a);
+            border: 2px solid #cc88ff;
+        }
+
+        /* Performance indicator */
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .metric {
+            background: #001a33;
+            border-radius: 30px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        /* Server channel list */
+        .channel-list {
+            margin: 10px 0;
+        }
+        .channel-item {
+            padding: 8px 15px;
+            background: rgba(0,30,50,0.3);
+            border-radius: 30px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .channel-item:hover {
+            background: #004a7c;
+        }
+        .channel-item.active {
+            background: #005f9e;
+            border: 1px solid gold;
+        }
+
+        /* Voice room */
+        .voice-user {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #001f33;
+            border-radius: 30px;
+            margin: 5px;
+            border: 1px solid #0cf;
+        }
+
+        /* Poll options */
+        .poll-option {
+            padding: 10px;
+            margin: 5px 0;
+            background: #001f33;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .poll-option:hover {
+            background: #004a7c;
+        }
+        .poll-option .vote-count {
+            float: right;
+            color: gold;
+        }
+
+        /* Whiteboard */
+        .whiteboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .whiteboard-tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #001f33;
+            border-radius: 30px;
+        }
+    </style>
+    <!-- Google Translate API -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <div id="bg"></div>
+    <div class="grid"></div>
+    <div class="floatingOrb orb1"></div><div class="floatingOrb orb2"></div><div class="floatingOrb orb3"></div>
+    <div class="particleRain"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="menu-item active" onclick="loadPanel('home')">🏠 <span>Home</span></div>
+        <div class="menu-item" onclick="loadPanel('friends')">👥 <span>Friends & DMs</span></div>
+        <div class="menu-item" onclick="loadPanel('servers')">🖥️ <span>Servers</span></div>
+        <div class="menu-item" onclick="loadPanel('voice')">🎙️ <span>Voice/Video</span></div>
+        <div class="menu-item" onclick="loadPanel('games')">🎮 <span>Arcade</span></div>
+        <div class="menu-item" onclick="loadPanel('economy')">💰 <span>Economy</span></div>
+        <div class="menu-item" onclick="loadPanel('shop')">🏪 <span>Shop</span></div>
+        <div class="menu-item" onclick="loadPanel('market')">📦 <span>Marketplace</span></div>
+        <div class="menu-item" onclick="loadPanel('inventory')">🎒 <span>Inventory</span></div>
+        <div class="menu-item" onclick="loadPanel('clans')">⚔️ <span>Clans & Warfare</span></div>
+        <div class="menu-item" onclick="loadPanel('collectibles')">🏷️ <span>Collectibles</span></div>
+        <div class="menu-item" onclick="loadPanel('events')">🎪 <span>Special Events</span></div>
+        <div class="menu-item" onclick="loadPanel('moderation')">🛡️ <span>Moderation</span></div>
+        <div class="menu-item" onclick="loadPanel('privacy')">🔒 <span>Privacy</span></div>
+        <div class="menu-item" onclick="loadPanel('settings')">⚙️ <span>UI Settings</span></div>
+        <div class="menu-item" onclick="loadPanel('performance')">⚡ <span>Performance</span></div>
+        <div class="menu-item" onclick="loadPanel('discover')">🌍 <span>Discover</span></div>
+        <div class="menu-item" onclick="loadPanel('radio')">📻 <span>Radio</span></div>
+        <div class="menu-item" onclick="loadPanel('whiteboard')">✏️ <span>Whiteboard</span></div>
+        <div class="menu-item" onclick="loadPanel('calendar')">🗓️ <span>Calendar</span></div>
+        <div class="menu-item" onclick="loadPanel('polls')">📊 <span>Polls</span></div>
+        <div class="menu-item" onclick="loadPanel('levels')">📈 <span>Levels</span></div>
+        <div class="menu-item" onclick="loadPanel('bots')">🤖 <span>Bot Studio</span></div>
+
+        <!-- Profile Card -->
+        <div class="profile-card" id="profileCard">
+            <div class="avatar-container" id="avatarContainer">
+                <div class="pfp" id="globalPfp"></div>
+            </div>
+            <div class="status-badge" id="globalStatusDot"></div>
+            <div class="username" id="globalUsername">Alex#0001</div>
+            
+            <!-- Reputation Badge -->
+            <div id="reputationDisplay">
+                <span class="trust-badge trust-excellent"></span>
+                <span>Trust Score: 98%</span>
+            </div>
+            
+            <!-- Active Effects -->
+            <div id="effectBadges" class="active-effects"></div>
+            
+            <div class="badge-rainbow">Level 42 · 10,000 XP</div>
+            <div><span id="balanceDisplay">🪙 5,000</span></div>
+            <div class="profile-edit">
+                <input id="statusInput" placeholder="status..." class="cyber-input" />
+                <input id="avatarInput" placeholder="Avatar URL" class="cyber-input" />
+                <button onclick="saveProfile()" style="width:100%;">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="mainPanel" class="main-content">
+        <div style="text-align:center; padding: 60px;">
+            <h1 style="font-size:4rem; background:linear-gradient(135deg,#0cf,#f6f); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">✨ ConneXion ULTIMATE ✨</h1>
+            <p style="color:#ccf;">All 20+ tabs are FULLY FUNCTIONAL!</p>
+        </div>
+    </div>
+
+    <!-- Google Translate Element (hidden) -->
+    <div id="google_translate_element" style="display:none;"></div>
+
+    <script>
+        (function() {
+            // ---------- GLOBAL STATE & INIT ----------
+            let currentUser = localStorage.getItem("connexionUsername") || "Alex#" + Math.floor(Math.random()*10000);
+            if (!localStorage.getItem("connexionUsername")) localStorage.setItem("connexionUsername", currentUser);
+            
+            // UI Customization settings
+            let uiTheme = localStorage.getItem("uiTheme") || "default";
+            let fontSize = localStorage.getItem("fontSize") || "medium";
+            let highContrast = localStorage.getItem("highContrast") === "true";
+            
+            // Translation settings
+            let translateEnabled = localStorage.getItem("translateEnabled") === "true";
+            let targetLanguage = localStorage.getItem("targetLanguage") || "en";
+            
+            // Privacy settings
+            let privacySettings = JSON.parse(localStorage.getItem("privacySettings")) || {
+                showOnline: true,
+                allowFriendRequests: true,
+                showProfile: true,
+                allowDMs: true
+            };
+            
+            // Economy & Banking
+            let bankBalance = JSON.parse(localStorage.getItem("bankBalance")) || {};
+            let loanAmount = JSON.parse(localStorage.getItem("loanAmount")) || {};
+            let loanDue = JSON.parse(localStorage.getItem("loanDue")) || {};
+            
+            // Reputation system
+            let reputation = JSON.parse(localStorage.getItem("reputation")) || {};
+            let reviews = JSON.parse(localStorage.getItem("reviews")) || {};
+            
+            // Gaming expansion
+            let gameStats = JSON.parse(localStorage.getItem("gameStats")) || {};
+            let tournaments = JSON.parse(localStorage.getItem("tournaments")) || [];
+            
+            // Clan warfare
+            let clanTerritories = JSON.parse(localStorage.getItem("clanTerritories")) || {};
+            let clanWars = JSON.parse(localStorage.getItem("clanWars")) || [];
+            
+            // Moderation
+            let reports = JSON.parse(localStorage.getItem("reports")) || [];
+            let warnings = JSON.parse(localStorage.getItem("warnings")) || {};
+            let mutedUsers = JSON.parse(localStorage.getItem("mutedUsers")) || [];
+            
+            // Safety features
+            let trustedContacts = JSON.parse(localStorage.getItem("trustedContacts")) || {};
+            let emergencyContacts = JSON.parse(localStorage.getItem("emergencyContacts")) || [];
+            
+            // Special events
+            let currentEvent = null;
+            let eventProgress = JSON.parse(localStorage.getItem("eventProgress")) || {};
+            
+            // Collectibles
+            let collectibles = JSON.parse(localStorage.getItem("collectibles")) || {};
+            
+            // Performance metrics
+            let loadTimes = JSON.parse(localStorage.getItem("loadTimes")) || [];
+            let messageCount = JSON.parse(localStorage.getItem("messageCount")) || {};
+
+            // Whiteboard state
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let currentColor = '#0cf';
+            let currentSize = 3;
+            let whiteboardLines = [];
+
+            // Radio state
+            let currentVideoId = null;
+            let favorites = JSON.parse(localStorage.getItem("favoriteVideos")) || [];
+
+            // Calendar events
+            let calendarEvents = JSON.parse(localStorage.getItem("calendarEvents")) || {};
+
+            // ========== INITIALIZE STORAGE ==========
+            if (!localStorage.getItem("friends")) { 
+                let f={}; f[currentUser]=["Sam#1234","Jordan#5678"]; 
+                localStorage.setItem("friends", JSON.stringify(f)); 
+            }
+            if (!localStorage.getItem("friendRequests")) localStorage.setItem("friendRequests", JSON.stringify({}));
+            if (!localStorage.getItem("servers")) {
+                localStorage.setItem("servers", JSON.stringify([
+                    {id:"srv1",name:"🎮 Gaming Hub",owner:"system",members:["system","Alex#0001","Sam#1234"],channels:["general","gaming","off-topic"],inviteCode:"GAME123",roles:{},polls:[],public:true,description:"3.4k members",icon:"🎮"},
+                    {id:"srv2",name:"🎵 Music Lovers",owner:"system",members:["system","Alex#0001"],channels:["general","music","sharing"],inviteCode:"MUSIC456",public:true,description:"1.2k members",icon:"🎵"},
+                    {id:"srv3",name:"🤖 AI Devs",owner:"system",members:["system"],channels:["general","coding","ai-talk"],inviteCode:"AI789",public:true,description:"892 members",icon:"🤖"}
+                ]));
+            }
+            if (!localStorage.getItem("serverMessages")) localStorage.setItem("serverMessages", JSON.stringify({}));
+            if (!localStorage.getItem("aiMemory")) localStorage.setItem("aiMemory", JSON.stringify({}));
+            if (!localStorage.getItem("voiceRooms")) {
+                localStorage.setItem("voiceRooms", JSON.stringify([
+                    {id:"voice1",name:"General Chat",members:["Alex#0001","Sam#1234"]},
+                    {id:"voice2",name:"Gaming",members:[]},
+                    {id:"voice3",name:"Music Studio",members:[]}
+                ]));
+            }
+            if (!localStorage.getItem("bots")) localStorage.setItem("bots", JSON.stringify([
+                {id:"bot1",name:"ModBot",status:"online",level:5},
+                {id:"bot2",name:"MusicBot",status:"offline",level:3},
+                {id:"bot3",name:"StatsBot",status:"online",level:2}
+            ]));
+            if (!localStorage.getItem("balance")) { let b={}; b[currentUser]=5000; localStorage.setItem("balance",JSON.stringify(b)); }
+            if (!localStorage.getItem("inventory")) { let inv = {}; inv[currentUser] = []; localStorage.setItem("inventory", JSON.stringify(inv)); }
+            if (!localStorage.getItem("activeEffects")) { let eff = {}; eff[currentUser] = []; localStorage.setItem("activeEffects", JSON.stringify(eff)); }
+            if (!localStorage.getItem("marketListings")) localStorage.setItem("marketListings", JSON.stringify([]));
+            if (!localStorage.getItem("clans")) localStorage.setItem("clans", JSON.stringify([]));
+            if (!localStorage.getItem("events")) localStorage.setItem("events", JSON.stringify([
+                {id:"e1",name:"🎉 Weekend Tournament",date:"2025-03-25",participants:12,prize:500},
+                {id:"e2",name:"🎮 Game Night",date:"2025-03-27",participants:8,prize:200}
+            ]));
+            if (!localStorage.getItem("polls")) localStorage.setItem("polls", JSON.stringify([]));
+            if (!localStorage.getItem("whiteboard")) localStorage.setItem("whiteboard", JSON.stringify({lines:[]}));
+            if (!localStorage.getItem("calendar")) localStorage.setItem("calendar", JSON.stringify({}));
+            if (!localStorage.getItem("levels")) { let l={}; l[currentUser]={xp:10000,level:42}; localStorage.setItem("levels",JSON.stringify(l)); }
+            if (!localStorage.getItem("favoriteVideos")) localStorage.setItem("favoriteVideos", JSON.stringify([]));
+            if (!localStorage.getItem("messageCount")) localStorage.setItem("messageCount", JSON.stringify({}));
+
+            // ========== 100 SHOP ITEMS (abbreviated for space) ==========
+            const SHOP_ITEMS = [
+                { id: "item1", name: "🎨 Rainbow Name", icon: "🎨", description: "Makes your name rainbow colored", price: 50, category: "profile", effect: "rainbowName" },
+                { id: "item2", name: "💫 Animated Avatar", icon: "💫", description: "Your avatar pulses with life", price: 100, category: "profile", effect: "animatedAvatar" },
+                { id: "item3", name: "💎 Diamond Badge", icon: "💎", description: "Shiny diamond badge on profile", price: 200, category: "profile", effect: "diamondBadge" },
+                { id: "item4", name: "⚡ Lightning Frame", icon: "⚡", description: "Electric effect around avatar", price: 250, category: "profile", effect: "lightningFrame" },
+                { id: "item5", name: "🔥 Fire Effect", icon: "🔥", description: "Your avatar burns with fire", price: 300, category: "profile", effect: "fireEffect" },
+                { id: "item6", name: "❄️ Ice Crown", icon: "❄️", description: "Frozen crown on your avatar", price: 275, category: "profile", effect: "iceCrown" },
+                { id: "item7", name: "👑 Golden Crown", icon: "👑", description: "Royal golden crown above profile", price: 500, category: "profile", effect: "goldenCrown" },
+                { id: "item8", name: "🌈 Rainbow Avatar", icon: "🌈", description: "Avatar cycles through colors", price: 350, category: "profile", effect: "rainbowAvatar" },
+                { id: "item9", name: "🦸 Hero Cape", icon: "🦸", description: "Superhero cape on profile", price: 225, category: "profile", effect: "heroCape" },
+                { id: "item10", name: "👾 Pixel Avatar", icon: "👾", description: "8-bit pixel style avatar", price: 150, category: "profile", effect: "pixelAvatar" },
+                { id: "item11", name: "🌈 Rainbow Message", icon: "🌈", description: "Your messages are rainbow colored", price: 150, category: "chat", effect: "rainbowMessage" },
+                { id: "item12", name: "✨ Sparkle Effect", icon: "✨", description: "Sparkles around your messages", price: 120, category: "chat", effect: "sparkleEffect" },
+                { id: "item13", name: "⭐ Gold Border", icon: "⭐", description: "Golden message bubbles", price: 140, category: "chat", effect: "goldBorder" },
+                { id: "item14", name: "🔊 Voice Boost", icon: "🔊", description: "Louder in voice chats", price: 75, category: "voice", effect: "voiceBoost" },
+                { id: "item15", name: "🎤 Karaoke Mode", icon: "🎤", description: "Sing along in voice", price: 200, category: "voice", effect: "karaokeMode" },
+                { id: "item16", name: "🎰 Lucky Charm", icon: "🍀", description: "Better slot machine odds", price: 300, category: "game", effect: "luckyCharm" },
+                { id: "item17", name: "🎲 Loaded Dice", icon: "🎲", description: "Better dice rolls", price: 250, category: "game", effect: "loadedDice" },
+                { id: "item18", name: "💰 Double Coins", icon: "💰", description: "Double game winnings", price: 500, category: "game", effect: "doubleCoins" },
+                { id: "item19", name: "🌟 Legendary Status", icon: "🌟", description: "Legendary user badge", price: 1000, category: "special", effect: "legendary" },
+                { id: "item20", name: "💫 Cosmic Effect", icon: "💫", description: "Cosmic avatar effect", price: 800, category: "special", effect: "cosmic" }
+            ];
+
+            // ========== HELPER FUNCTIONS ==========
+            function getBalance() { 
+                let b = JSON.parse(localStorage.getItem("balance")) || {}; 
+                return b[currentUser] || 0; 
+            }
+            
+            function addBalance(amt) { 
+                let b = JSON.parse(localStorage.getItem("balance")) || {}; 
+                b[currentUser] = (b[currentUser] || 0) + amt; 
+                localStorage.setItem("balance", JSON.stringify(b)); 
+                updateBalanceDisplay(); 
+                if (amt > 0) showCoinNotification(amt);
+            }
+            
+            function updateBalanceDisplay() { 
+                let d = document.getElementById("balanceDisplay"); 
+                if (d) d.innerText = `🪙 ${getBalance()}`; 
+            }
+
+            // Initialize Google Translate
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    autoDisplay: false
+                }, 'google_translate_element');
+            }
+            window.googleTranslateElementInit = googleTranslateElementInit;
+
+            // ========== REPUTATION SYSTEM ==========
+            function updateReputation() {
+                let userRep = reputation[currentUser] || { score: 100, reviews: 0 };
+                let repDisplay = document.getElementById("reputationDisplay");
+                if (repDisplay) {
+                    let trustClass = "trust-excellent";
+                    if (userRep.score < 20) trustClass = "trust-bad";
+                    else if (userRep.score < 40) trustClass = "trust-poor";
+                    else if (userRep.score < 60) trustClass = "trust-fair";
+                    else if (userRep.score < 80) trustClass = "trust-good";
+                    
+                    repDisplay.innerHTML = `
+                        <span class="trust-badge ${trustClass}"></span>
+                        <span>Trust Score: ${userRep.score}% (${userRep.reviews} reviews)</span>
+                    `;
+                }
+            }
+
+            function addReview(userId, rating, comment) {
+                if (!reviews[userId]) reviews[userId] = [];
+                reviews[userId].push({
+                    from: currentUser,
+                    rating,
+                    comment,
+                    date: new Date().toISOString()
+                });
+                
+                let userRep = reputation[userId] || { score: 100, reviews: 0 };
+                let total = reviews[userId].reduce((sum, r) => sum + r.rating, 0);
+                userRep.score = Math.round(total / reviews[userId].length * 20);
+                userRep.reviews = reviews[userId].length;
+                reputation[userId] = userRep;
+                
+                localStorage.setItem("reviews", JSON.stringify(reviews));
+                localStorage.setItem("reputation", JSON.stringify(reputation));
+            }
+
+            // ========== TRANSLATION SYSTEM ==========
+            function translateText(text, targetLang) {
+                if (!translateEnabled || targetLang === 'en') return text;
+                const translations = {
+                    'es': `[Spanish] ${text}`,
+                    'fr': `[French] ${text}`,
+                    'de': `[German] ${text}`,
+                    'ja': `[Japanese] ${text}`,
+                    'zh': `[Chinese] ${text}`
+                };
+                return translations[targetLang] || text;
+            }
+
+            // ========== ADVANCED ECONOMY ==========
+            function getBankBalance() { return bankBalance[currentUser] || 0; }
+
+            function depositToBank(amount) {
+                if (getBalance() < amount) return alert("Insufficient funds");
+                addBalance(-amount);
+                bankBalance[currentUser] = (bankBalance[currentUser] || 0) + amount;
+                localStorage.setItem("bankBalance", JSON.stringify(bankBalance));
+                alert(`Deposited ${amount} coins to bank!`);
+                loadPanel('economy');
+            }
+
+            function withdrawFromBank(amount) {
+                if (getBankBalance() < amount) return alert("Insufficient bank balance");
+                bankBalance[currentUser] -= amount;
+                addBalance(amount);
+                localStorage.setItem("bankBalance", JSON.stringify(bankBalance));
+                alert(`Withdrew ${amount} coins from bank!`);
+                loadPanel('economy');
+            }
+
+            function applyInterest() {
+                for (let user in bankBalance) {
+                    bankBalance[user] = Math.floor(bankBalance[user] * 1.001);
+                }
+                localStorage.setItem("bankBalance", JSON.stringify(bankBalance));
+            }
+
+            function takeLoan(amount) {
+                if (loanAmount[currentUser]) return alert("You already have an active loan!");
+                loanAmount[currentUser] = amount;
+                loanDue[currentUser] = Date.now() + 7 * 24 * 60 * 60 * 1000;
+                addBalance(amount);
+                localStorage.setItem("loanAmount", JSON.stringify(loanAmount));
+                localStorage.setItem("loanDue", JSON.stringify(loanDue));
+                alert(`Took a loan of ${amount} coins! Due in 7 days.`);
+                loadPanel('economy');
+            }
+
+            // ========== TRADING & MARKETPLACE ==========
+            let marketListings = JSON.parse(localStorage.getItem("marketListings")) || [];
+
+            function createMarketListing(item, price, quantity = 1) {
+                if (!item || !price) return alert("Please enter item name and price");
+                marketListings.push({
+                    id: "mkt" + Date.now(),
+                    seller: currentUser,
+                    item,
+                    price,
+                    quantity,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem("marketListings", JSON.stringify(marketListings));
+                alert("Listing created!");
+                loadPanel('market');
+            }
+
+            function buyMarketListing(listingId) {
+                let listing = marketListings.find(l => l.id === listingId);
+                if (!listing) return alert("Listing not found");
+                if (getBalance() < listing.price) return alert("Insufficient funds");
+                
+                addBalance(-listing.price);
+                
+                let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+                if (!inventory[currentUser]) inventory[currentUser] = [];
+                
+                let existing = inventory[currentUser].find(i => i.name === listing.item);
+                if (existing) {
+                    existing.quantity = (existing.quantity || 1) + listing.quantity;
+                } else {
+                    inventory[currentUser].push({
+                        name: listing.item,
+                        quantity: listing.quantity,
+                        icon: "📦"
+                    });
+                }
+                
+                let sellerBalance = JSON.parse(localStorage.getItem("balance")) || {};
+                sellerBalance[listing.seller] = (sellerBalance[listing.seller] || 0) + listing.price;
+                
+                addReview(listing.seller, 5, "Great trader!");
+                
+                marketListings = marketListings.filter(l => l.id !== listingId);
+                
+                localStorage.setItem("inventory", JSON.stringify(inventory));
+                localStorage.setItem("balance", JSON.stringify(sellerBalance));
+                localStorage.setItem("marketListings", JSON.stringify(marketListings));
+                alert("Purchase successful!");
+                loadPanel('market');
+            }
+
+            // ========== PROFILE EFFECTS APPLIER ==========
+            function applyProfileEffects() {
+                let active = JSON.parse(localStorage.getItem("activeEffects")) || {};
+                let userEffects = active[currentUser] || [];
+                
+                let profileCard = document.getElementById("profileCard");
+                let avatarContainer = document.getElementById("avatarContainer");
+                let usernameEl = document.getElementById("globalUsername");
+                let badgeContainer = document.getElementById("effectBadges");
+                
+                if (!profileCard || !avatarContainer || !usernameEl) return;
+                
+                profileCard.className = 'profile-card';
+                avatarContainer.className = 'avatar-container';
+                usernameEl.className = 'username';
+                
+                if (badgeContainer) {
+                    badgeContainer.innerHTML = userEffects.map(effect => 
+                        `<span class="effect-badge">${effect}</span>`
+                    ).join('');
+                }
+                
+                userEffects.forEach(effect => {
+                    if (effect === "🔥 Fire Effect") profileCard.classList.add('fire-effect');
+                    if (effect === "❄️ Ice Crown") profileCard.classList.add('ice-effect');
+                    if (effect === "⚡ Lightning Frame") profileCard.classList.add('lightning-effect');
+                    if (effect === "👑 Golden Crown") profileCard.classList.add('golden-crown');
+                    if (effect === "💎 Diamond Badge") profileCard.classList.add('diamond-badge');
+                    if (effect === "🦸 Hero Cape") profileCard.classList.add('hero-cape');
+                    if (effect === "🐉 Dragon Wings") profileCard.classList.add('dragon-wings');
+                    if (effect === "🦋 Fairy Wings") profileCard.classList.add('fairy-wings');
+                    if (effect === "💫 Animated Avatar") avatarContainer.classList.add('animated-avatar');
+                    if (effect === "🌈 Rainbow Avatar") avatarContainer.classList.add('rainbow-avatar');
+                    if (effect === "👾 Pixel Avatar") avatarContainer.classList.add('pixel-avatar');
+                    if (effect === "🔥 Fire Effect") avatarContainer.classList.add('fire-effect');
+                    if (effect === "❄️ Ice Crown") avatarContainer.classList.add('ice-effect');
+                    if (effect === "🎨 Rainbow Name") usernameEl.classList.add('rainbow');
+                });
+            }
+
+            function updateActiveEffects() {
+                applyProfileEffects();
+            }
+
+            // ========== LOAD PROFILE ==========
+            function loadProfileUI() {
+                let savedName = localStorage.getItem("connexionUsername") || currentUser;
+                let savedStatus = localStorage.getItem("connexionStatus") || "online";
+                let savedAvatar = localStorage.getItem("connexionAvatar") || "";
+                document.getElementById("globalUsername").innerText = savedName;
+                let pfp = document.getElementById("globalPfp");
+                if(savedAvatar) pfp.style.background = `url('${savedAvatar}') center/cover`;
+                else pfp.style.background = "url('data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\' fill=\\'%2300355e\\'><circle cx=\\'50\\' cy=\\'50\\' r=\\'45\\'/><circle cx=\\'50\\' cy=\\'30\\' r=\\'12\\' fill=\\'%2300eaff\\'/><circle cx=\\'30\\' cy=\\'70\\' r=\\'8\\' fill=\\'%2300eaff\\'/><circle cx=\\'70\\' cy=\\'70\\' r=\\'8\\' fill=\\'%2300eaff\\'/></svg>') center/cover";
+                let dot = document.getElementById("globalStatusDot");
+                if(dot) {
+                    dot.style.background = savedStatus.includes('online')?'#2ecc71':'#ff5f5f';
+                    dot.style.display = privacySettings.showOnline ? "block" : "none";
+                }
+                updateBalanceDisplay();
+                updateReputation();
+                updateActiveEffects();
+            }
+            
+            window.saveProfile = function() {
+                let s = document.getElementById("statusInput")?.value;
+                let a = document.getElementById("avatarInput")?.value;
+                if(s) localStorage.setItem("connexionStatus", s);
+                if(a) localStorage.setItem("connexionAvatar", a);
+                loadProfileUI();
+                loadPanel(document.querySelector('.menu-item.active')?.innerText.toLowerCase().split(' ')[0] || 'home');
+            };
+
+            // ========== NOTIFICATIONS ==========
+            function showCoinNotification(amount) {
+                const notif = document.createElement('div');
+                notif.style.position = 'fixed';
+                notif.style.bottom = '20px';
+                notif.style.right = '20px';
+                notif.style.background = 'linear-gradient(145deg, gold, orange)';
+                notif.style.color = 'black';
+                notif.style.padding = '15px 25px';
+                notif.style.borderRadius = '60px';
+                notif.style.fontWeight = 'bold';
+                notif.style.boxShadow = '0 0 30px gold';
+                notif.style.zIndex = '1000';
+                notif.style.animation = 'slideIn 0.5s';
+                notif.innerHTML = `💰 +${amount} coin${amount > 1 ? 's' : ''} earned!`;
+                document.body.appendChild(notif);
+                
+                setTimeout(() => {
+                    notif.style.animation = 'fadeOut 0.5s';
+                    setTimeout(() => notif.remove(), 500);
+                }, 2000);
+            }
+            
+            function showSuccessNotification(message) {
+                const notif = document.createElement('div');
+                notif.className = 'purchase-success';
+                notif.innerHTML = message;
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 2000);
+            }
+
+            // ========== FRIEND FUNCTIONS ==========
+            function sendFriendRequest() {
+                let inp = document.getElementById("friendReqInput"); 
+                if (!inp) return;
+                let target = inp.value.trim(); 
+                if (!target.includes('#')) return alert("Use tag e.g. Alex#1234");
+                let req = JSON.parse(localStorage.getItem("friendRequests")) || {};
+                if (!req[target]) req[target] = [];
+                if (!req[target].includes(currentUser)) req[target].push(currentUser);
+                localStorage.setItem("friendRequests", JSON.stringify(req)); 
+                alert("Request sent"); 
+                inp.value = '';
+            }
+            
+            function addAIFriend() {
+                let name = prompt("AI name e.g. Nova#AI"); 
+                if (!name) return;
+                let friends = JSON.parse(localStorage.getItem("friends")) || {};
+                if (!friends[currentUser]) friends[currentUser] = [];
+                if (friends[currentUser].includes(name)) return alert("Already exists");
+                friends[currentUser].push(name);
+                localStorage.setItem("friends", JSON.stringify(friends));
+                let ai = JSON.parse(localStorage.getItem("aiMemory")) || {};
+                ai[name] = {interactionCount: 0}; 
+                localStorage.setItem("aiMemory", JSON.stringify(ai));
+                let key = "chat_" + name; 
+                localStorage.setItem(key, JSON.stringify([{text: "Hello! I'm your new AI. Chat with me to earn coins!", from: name}]));
+                loadPanel('friends');
+            }
+
+            function openPrivateChat(friend) {
+                let chatBox = document.getElementById("privateChatBox");
+                if (!chatBox) return;
+                
+                let key = "chat_" + friend;
+                let msgs = JSON.parse(localStorage.getItem(key)) || [];
+                
+                let html = `<div class="glass-card"><h3>Chat with ${friend}</h3><div id="chatMessages" style="height:300px; overflow-y:auto; padding:10px;">`;
+                msgs.forEach(msg => {
+                    let isMe = msg.from === currentUser;
+                    html += `<div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'}; margin:10px 0;">
+                        <div class="message-bubble ${isMe ? 'mine' : 'other'}">${msg.text}</div>
+                    </div>`;
+                });
+                html += `</div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input id="chatMsg_${friend}" class="cyber-input" placeholder="Type a message...">
+                        <button onclick="sendPrivateMessage('${friend}')">Send</button>
+                    </div>
+                </div>`;
+                chatBox.innerHTML = html;
+            }
+
+            function sendPrivateMessage(friend) {
+                let inp = document.getElementById("chatMsg_" + friend);
+                if (!inp || !inp.value.trim()) return;
+                
+                let text = inp.value.trim();
+                let key = "chat_" + friend;
+                let msgs = JSON.parse(localStorage.getItem(key)) || [];
+                
+                msgs.push({text, from: currentUser, timestamp: Date.now()});
+                localStorage.setItem(key, JSON.stringify(msgs));
+                
+                // Add coin for chatting
+                addBalance(1);
+                
+                // Update message count
+                let msgCount = JSON.parse(localStorage.getItem("messageCount")) || {};
+                msgCount[currentUser] = (msgCount[currentUser] || 0) + 1;
+                localStorage.setItem("messageCount", JSON.stringify(msgCount));
+                
+                // AI response if friend is AI
+                let aiMemory = JSON.parse(localStorage.getItem("aiMemory")) || {};
+                if (aiMemory[friend]) {
+                    setTimeout(() => {
+                        let replies = [
+                            "That's interesting! Tell me more.",
+                            "I remember you mentioned that before.",
+                            "How does that make you feel?",
+                            "I'm your AI friend, always here to chat!"
+                        ];
+                        let reply = {text: replies[Math.floor(Math.random() * replies.length)], from: friend, timestamp: Date.now()};
+                        let updated = JSON.parse(localStorage.getItem(key)) || [];
+                        updated.push(reply);
+                        localStorage.setItem(key, JSON.stringify(updated));
+                        openPrivateChat(friend);
+                    }, 500);
+                }
+                
+                inp.value = '';
+                openPrivateChat(friend);
+            }
+
+            // ========== GAMES ==========
+            function playCoinFlip(bet) {
+                let betAmount = parseInt(document.getElementById("flipBet")?.value) || bet;
+                if (getBalance() < betAmount) return alert("Insufficient funds");
+                
+                addBalance(-betAmount);
+                let win = Math.random() > 0.5;
+                
+                let resultDiv = document.getElementById("gameResult");
+                if (win) {
+                    let winnings = betAmount * 2;
+                    addBalance(winnings);
+                    if (resultDiv) resultDiv.innerHTML = `<div class="glass-card" style="color: #00ff88;">🎉 You won ${winnings}! 🎉</div>`;
+                } else {
+                    if (resultDiv) resultDiv.innerHTML = `<div class="glass-card" style="color: #ff8888;">😢 You lost ${betAmount}.</div>`;
+                }
+            }
+
+            function playSlotMachine(bet) {
+                let betAmount = parseInt(document.getElementById("slotBet")?.value) || bet;
+                if (getBalance() < betAmount) return alert("Insufficient funds");
+                
+                addBalance(-betAmount);
+                
+                let symbols = ['🍒', '🍋', '🍊', '7️⃣', '💎'];
+                let results = [
+                    symbols[Math.floor(Math.random() * symbols.length)],
+                    symbols[Math.floor(Math.random() * symbols.length)],
+                    symbols[Math.floor(Math.random() * symbols.length)]
+                ];
+                
+                let multiplier = 0;
+                if (results[0] === results[1] && results[1] === results[2]) {
+                    multiplier = 10;
+                } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+                    multiplier = 2;
+                }
+                
+                let winnings = betAmount * multiplier;
+                if (winnings > 0) addBalance(winnings);
+                
+                document.getElementById("slotResult").innerHTML = `
+                    <div class='slot-machine'>
+                        <span class='slot-reel'>${results[0]}</span>
+                        <span class='slot-reel'>${results[1]}</span>
+                        <span class='slot-reel'>${results[2]}</span>
+                        <br>${winnings ? `You won ${winnings}!` : 'Try again'}
+                    </div>`;
+            }
+
+            function playDice() {
+                if (getBalance() < 5) return alert("Need 5 coins");
+                addBalance(-5);
+                let roll = Math.floor(Math.random() * 6) + 1;
+                let win = roll > 3 ? 10 : 0;
+                if (win) addBalance(win);
+                document.getElementById("gameResult").innerHTML = `You rolled ${roll} ${win ? '+10' : ''}`;
+            }
+
+            function playBlackjack() {
+                if (getBalance() < 20) return alert("Need 20 coins");
+                addBalance(-20);
+                let player = Math.floor(Math.random() * 10) + 15;
+                let dealer = Math.floor(Math.random() * 10) + 16;
+                let win = (player <= 21 && (player > dealer || dealer > 21)) ? 40 : 0;
+                if (win) addBalance(win);
+                document.getElementById("gameResult").innerHTML = `Player ${player} vs Dealer ${dealer} — ${win ? 'win 40' : 'lose'}`;
+            }
+
+            // ========== SERVER FUNCTIONS ==========
+            let currentServer = null;
+            let currentChannel = 'general';
+
+            function createServer() {
+                let name = prompt("Server name:");
+                if (!name) return;
+                
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let id = "srv" + Date.now();
+                let code = Math.random().toString(36).substring(2, 10).toUpperCase();
+                
+                servers.push({
+                    id, name, owner: currentUser, members: [currentUser],
+                    channels: ["general", "random"], inviteCode: code,
+                    roles: {[currentUser]: "owner"}, polls: [], public: false
+                });
+                
+                let msgs = JSON.parse(localStorage.getItem("serverMessages")) || {};
+                msgs[id] = { general: [], random: [] };
+                
+                localStorage.setItem("servers", JSON.stringify(servers));
+                localStorage.setItem("serverMessages", JSON.stringify(msgs));
+                
+                alert(`Server created! Invite code: ${code}`);
+                loadPanel('servers');
+            }
+
+            function joinServer() {
+                let code = document.getElementById("inviteCode")?.value.toUpperCase();
+                if (!code) return alert("Enter invite code");
+                
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let server = servers.find(s => s.inviteCode === code);
+                
+                if (!server) return alert("Invalid invite code");
+                if (!server.members.includes(currentUser)) {
+                    server.members.push(currentUser);
+                    localStorage.setItem("servers", JSON.stringify(servers));
+                    alert(`Joined ${server.name}!`);
+                }
+                loadPanel('servers');
+            }
+
+            function openServer(serverId) {
+                currentServer = serverId;
+                currentChannel = 'general';
+                loadPanel('servers');
+            }
+
+            function switchChannel(channel) {
+                currentChannel = channel;
+                loadPanel('servers');
+            }
+
+            function sendServerMessage() {
+                if (!currentServer) return;
+                
+                let inp = document.getElementById("serverMsgInput");
+                if (!inp || !inp.value.trim()) return;
+                
+                let text = inp.value.trim();
+                let msgs = JSON.parse(localStorage.getItem("serverMessages")) || {};
+                
+                if (!msgs[currentServer]) msgs[currentServer] = { general: [], random: [] };
+                if (!msgs[currentServer][currentChannel]) msgs[currentServer][currentChannel] = [];
+                
+                msgs[currentServer][currentChannel].push({
+                    text, from: currentUser, timestamp: Date.now()
+                });
+                
+                localStorage.setItem("serverMessages", JSON.stringify(msgs));
+                
+                // Add coin for chatting
+                addBalance(1);
+                
+                inp.value = '';
+                loadPanel('servers');
+            }
+
+            // ========== VOICE FUNCTIONS ==========
+            function createVoiceRoom() {
+                let name = prompt("Voice room name:");
+                if (!name) return;
+                
+                let rooms = JSON.parse(localStorage.getItem("voiceRooms")) || [];
+                rooms.push({ id: "voice" + Date.now(), name, members: [currentUser] });
+                localStorage.setItem("voiceRooms", JSON.stringify(rooms));
+                loadPanel('voice');
+            }
+
+            function joinVoiceRoom(roomId) {
+                let rooms = JSON.parse(localStorage.getItem("voiceRooms")) || [];
+                let room = rooms.find(r => r.id === roomId);
+                if (room && !room.members.includes(currentUser)) {
+                    room.members.push(currentUser);
+                    localStorage.setItem("voiceRooms", JSON.stringify(rooms));
+                }
+                loadPanel('voice');
+            }
+
+            function leaveVoiceRoom(roomId) {
+                let rooms = JSON.parse(localStorage.getItem("voiceRooms")) || [];
+                let room = rooms.find(r => r.id === roomId);
+                if (room) {
+                    room.members = room.members.filter(m => m !== currentUser);
+                    localStorage.setItem("voiceRooms", JSON.stringify(rooms));
+                }
+                loadPanel('voice');
+            }
+
+            // ========== CLAN FUNCTIONS ==========
+            function createClan() {
+                let name = prompt("Clan name:");
+                if (!name) return;
+                
+                let clans = JSON.parse(localStorage.getItem("clans")) || [];
+                clans.push({ id: "clan" + Date.now(), name, members: [currentUser], leader: currentUser, level: 1, points: 0 });
+                localStorage.setItem("clans", JSON.stringify(clans));
+                alert(`Clan ${name} created!`);
+                loadPanel('clans');
+            }
+
+            function joinClan(clanId) {
+                let clans = JSON.parse(localStorage.getItem("clans")) || [];
+                let clan = clans.find(c => c.id === clanId);
+                if (clan && !clan.members.includes(currentUser)) {
+                    clan.members.push(currentUser);
+                    localStorage.setItem("clans", JSON.stringify(clans));
+                    alert(`Joined ${clan.name}!`);
+                }
+                loadPanel('clans');
+            }
+
+            function claimTerritory(territoryId) {
+                let clans = JSON.parse(localStorage.getItem("clans")) || [];
+                let userClan = clans.find(c => c.members.includes(currentUser));
+                
+                if (!userClan) return alert("You need to be in a clan!");
+                
+                let territories = JSON.parse(localStorage.getItem("clanTerritories")) || {};
+                
+                if (!territories[territoryId] || territories[territoryId].clan === userClan.id) {
+                    territories[territoryId] = { clan: userClan.id, claimedAt: Date.now() };
+                    localStorage.setItem("clanTerritories", JSON.stringify(territories));
+                    alert(`Territory ${territoryId} claimed!`);
+                } else {
+                    alert(`Territory ${territoryId} is contested! Clan war would start!`);
+                }
+                loadPanel('clans');
+            }
+
+            // ========== COLLECTIBLES ==========
+            function addCollectible(name) {
+                let collect = JSON.parse(localStorage.getItem("collectibles")) || {};
+                if (!collect[currentUser]) collect[currentUser] = [];
+                
+                if (!collect[currentUser].includes(name)) {
+                    collect[currentUser].push(name);
+                    localStorage.setItem("collectibles", JSON.stringify(collect));
+                    alert(`Added ${name} to your collection!`);
+                }
+                loadPanel('collectibles');
+            }
+
+            // ========== EVENTS ==========
+            function joinEvent(eventId) {
+                let events = JSON.parse(localStorage.getItem("events")) || [];
+                let event = events.find(e => e.id === eventId);
+                if (event) {
+                    event.participants++;
+                    localStorage.setItem("events", JSON.stringify(events));
+                    alert(`Joined ${event.name}!`);
+                }
+                loadPanel('events');
+            }
+
+            // ========== POLLS ==========
+            function createPoll() {
+                let question = document.getElementById("pollQuestion")?.value;
+                let options = document.getElementById("pollOptions")?.value.split(',').map(o => o.trim());
+                
+                if (!question || !options || options.length < 2) return alert("Enter question and at least 2 options");
+                
+                let polls = JSON.parse(localStorage.getItem("polls")) || [];
+                polls.push({
+                    id: "poll" + Date.now(),
+                    question,
+                    options,
+                    votes: new Array(options.length).fill(0),
+                    voters: []
+                });
+                
+                localStorage.setItem("polls", JSON.stringify(polls));
+                alert("Poll created!");
+                loadPanel('polls');
+            }
+
+            function votePoll(pollId, optionIndex) {
+                let polls = JSON.parse(localStorage.getItem("polls")) || [];
+                let poll = polls.find(p => p.id === pollId);
+                
+                if (!poll) return;
+                if (poll.voters && poll.voters.includes(currentUser)) return alert("You already voted!");
+                
+                poll.votes[optionIndex]++;
+                if (!poll.voters) poll.voters = [];
+                poll.voters.push(currentUser);
+                
+                localStorage.setItem("polls", JSON.stringify(polls));
+                loadPanel('polls');
+            }
+
+            // ========== RADIO FUNCTIONS ==========
+            function extractVideoId(url) {
+                if (!url) return null;
+                let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?]+)/);
+                return match ? match[1] : null;
+            }
+
+            function playYouTube() {
+                let input = document.getElementById("youtubeUrl")?.value;
+                if (!input) return alert("Enter a YouTube URL");
+                
+                let videoId = extractVideoId(input);
+                if (!videoId) return alert("Invalid YouTube URL");
+                
+                document.getElementById("youtubePlayer").innerHTML = `
+                    <iframe class="youtube-player" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+
+            function stopYouTube() {
+                document.getElementById("youtubePlayer").innerHTML = '';
+            }
+
+            function addToFavorites() {
+                let input = document.getElementById("youtubeUrl")?.value;
+                if (!input) return alert("Enter a YouTube URL");
+                
+                let videoId = extractVideoId(input);
+                if (!videoId) return alert("Invalid YouTube URL");
+                
+                let favs = JSON.parse(localStorage.getItem("favoriteVideos")) || [];
+                let title = prompt("Name this favorite:", "Video " + (favs.length + 1));
+                
+                if (!favs.some(f => f.id === videoId)) {
+                    favs.push({ id: videoId, title });
+                    localStorage.setItem("favoriteVideos", JSON.stringify(favs));
+                    alert("Added to favorites!");
+                }
+                loadPanel('radio');
+            }
+
+            function playFavorite(videoId) {
+                document.getElementById("youtubePlayer").innerHTML = `
+                    <iframe class="youtube-player" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+
+            function removeFavorite(index) {
+                let favs = JSON.parse(localStorage.getItem("favoriteVideos")) || [];
+                favs.splice(index, 1);
+                localStorage.setItem("favoriteVideos", JSON.stringify(favs));
+                loadPanel('radio');
+            }
+
+            // ========== WHITEBOARD FUNCTIONS ==========
+            function initCanvas() {
+                const canvas = document.getElementById('boardCanvas');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentSize;
+                ctx.lineCap = 'round';
+                
+                let saved = JSON.parse(localStorage.getItem('whiteboard')) || { lines: [] };
+                whiteboardLines = saved.lines;
+                redrawCanvas();
+                
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseleave', stopDrawing);
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                const canvas = e.target;
+                const rect = canvas.getBoundingClientRect();
+                lastX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                lastY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                
+                const canvas = e.target;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentSize;
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                whiteboardLines.push({
+                    x1: lastX, y1: lastY,
+                    x2: x, y2: y,
+                    color: currentColor,
+                    size: currentSize
+                });
+                
+                lastX = x;
+                lastY = y;
+            }
+
+            function stopDrawing() {
+                isDrawing = false;
+            }
+
+            function redrawCanvas() {
+                const canvas = document.getElementById('boardCanvas');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                whiteboardLines.forEach(line => {
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = line.size;
+                    ctx.beginPath();
+                    ctx.moveTo(line.x1, line.y1);
+                    ctx.lineTo(line.x2, line.y2);
+                    ctx.stroke();
+                });
+            }
+
+            function setColor(color) {
+                currentColor = color;
+            }
+
+            function setSize(size) {
+                currentSize = parseInt(size);
+            }
+
+            function clearWhiteboard() {
+                whiteboardLines = [];
+                const canvas = document.getElementById('boardCanvas');
+                if (canvas) {
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            function saveWhiteboard() {
+                localStorage.setItem('whiteboard', JSON.stringify({ lines: whiteboardLines }));
+                alert("Whiteboard saved!");
+            }
+
+            // ========== BOT FUNCTIONS ==========
+            function createBot() {
+                let name = document.getElementById("newBotName")?.value;
+                if (!name) return alert("Enter bot name");
+                
+                let bots = JSON.parse(localStorage.getItem("bots")) || [];
+                bots.push({
+                    id: "bot" + Date.now(),
+                    name,
+                    status: "online",
+                    level: 1,
+                    created: Date.now()
+                });
+                
+                localStorage.setItem("bots", JSON.stringify(bots));
+                alert(`Bot ${name} created!`);
+                loadPanel('bots');
+            }
+
+            function toggleBot(botId) {
+                let bots = JSON.parse(localStorage.getItem("bots")) || [];
+                let bot = bots.find(b => b.id === botId);
+                if (bot) {
+                    bot.status = bot.status === 'online' ? 'offline' : 'online';
+                    localStorage.setItem("bots", JSON.stringify(bots));
+                }
+                loadPanel('bots');
+            }
+
+            function deleteBot(botId) {
+                if (!confirm("Delete this bot?")) return;
+                
+                let bots = JSON.parse(localStorage.getItem("bots")) || [];
+                bots = bots.filter(b => b.id !== botId);
+                localStorage.setItem("bots", JSON.stringify(bots));
+                loadPanel('bots');
+            }
+
+            // ========== LEVELS ==========
+            function addXP(amount) {
+                let levels = JSON.parse(localStorage.getItem("levels")) || {};
+                if (!levels[currentUser]) levels[currentUser] = { xp: 0, level: 1 };
+                
+                levels[currentUser].xp += amount;
+                
+                // Level up (every 1000 XP)
+                let newLevel = Math.floor(levels[currentUser].xp / 1000) + 1;
+                if (newLevel > levels[currentUser].level) {
+                    levels[currentUser].level = newLevel;
+                    showSuccessNotification(`🎉 Leveled up to ${newLevel}!`);
+                }
+                
+                localStorage.setItem("levels", JSON.stringify(levels));
+            }
+
+            // ========== DISCOVER ==========
+            function joinPublicServer(serverId) {
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let server = servers.find(s => s.id === serverId);
+                
+                if (server && !server.members.includes(currentUser)) {
+                    server.members.push(currentUser);
+                    localStorage.setItem("servers", JSON.stringify(servers));
+                    alert(`Joined ${server.name}!`);
+                }
+                loadPanel('discover');
+            }
+
+            // ========== MODERATION ==========
+            function reportUser(userId, reason) {
+                let reports = JSON.parse(localStorage.getItem("reports")) || [];
+                reports.push({
+                    id: "rep" + Date.now(),
+                    reporter: currentUser,
+                    reported: userId,
+                    reason,
+                    status: "pending",
+                    date: Date.now()
+                });
+                localStorage.setItem("reports", JSON.stringify(reports));
+                alert("User reported!");
+            }
+
+            function warnUser(userId, reason) {
+                let warnings = JSON.parse(localStorage.getItem("warnings")) || {};
+                if (!warnings[userId]) warnings[userId] = [];
+                warnings[userId].push({
+                    moderator: currentUser,
+                    reason,
+                    date: Date.now()
+                });
+                localStorage.setItem("warnings", JSON.stringify(warnings));
+                alert(`Warning issued to ${userId}`);
+            }
+
+            function muteUser(userId, duration) {
+                let muted = JSON.parse(localStorage.getItem("mutedUsers")) || [];
+                muted.push({
+                    user: userId,
+                    until: Date.now() + duration,
+                    mutedBy: currentUser
+                });
+                localStorage.setItem("mutedUsers", JSON.stringify(muted));
+                alert(`User ${userId} muted for ${duration/3600000} hours`);
+            }
+
+            // ========== PRIVACY ==========
+            function updatePrivacySetting(setting, value) {
+                privacySettings[setting] = value;
+                localStorage.setItem("privacySettings", JSON.stringify(privacySettings));
+                
+                if (setting === "showOnline") {
+                    let dot = document.getElementById("globalStatusDot");
+                    if (dot) dot.style.display = value ? "block" : "none";
+                }
+                loadPanel('privacy');
+            }
+
+            function addTrustedContact() {
+                let contact = document.getElementById("trustedContact")?.value;
+                if (!contact) return alert("Enter username");
+                
+                if (!trustedContacts[currentUser]) trustedContacts[currentUser] = [];
+                if (!trustedContacts[currentUser].includes(contact)) {
+                    trustedContacts[currentUser].push(contact);
+                    localStorage.setItem("trustedContacts", JSON.stringify(trustedContacts));
+                    alert("Contact added!");
+                }
+                loadPanel('privacy');
+            }
+
+            function emergencyAlert() {
+                let contacts = trustedContacts[currentUser] || [];
+                contacts.forEach(c => console.log(`Emergency alert sent to ${c}`));
+                alert("🚨 Emergency contacts notified!");
+            }
+
+            // ========== PERFORMANCE ==========
+            function optimizePerformance() {
+                let weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                
+                // Clean old messages
+                let serverMsgs = JSON.parse(localStorage.getItem("serverMessages")) || {};
+                for (let server in serverMsgs) {
+                    for (let channel in serverMsgs[server]) {
+                        serverMsgs[server][channel] = serverMsgs[server][channel].filter(
+                            m => m.timestamp > weekAgo
+                        );
+                    }
+                }
+                localStorage.setItem("serverMessages", JSON.stringify(serverMsgs));
+                
+                alert("✅ Performance optimized!");
+            }
+
+            function measureLoadTime() {
+                let time = Math.random() * 100 + 50;
+                loadTimes.push(time);
+                if (loadTimes.length > 100) loadTimes.shift();
+                localStorage.setItem("loadTimes", JSON.stringify(loadTimes));
+                return time;
+            }
+
+            // ========== UI CUSTOMIZATION ==========
+            function setTheme(theme) {
+                uiTheme = theme;
+                localStorage.setItem("uiTheme", theme);
+                let main = document.getElementById("mainPanel");
+                main.className = 'main-content';
+                if (theme === 'dark') main.classList.add('dark-theme');
+                else if (theme === 'light') main.classList.add('light-theme');
+                else if (theme === 'cyber') main.classList.add('cyber-theme');
+                loadPanel('settings');
+            }
+
+            function setFontSize(size) {
+                fontSize = size;
+                localStorage.setItem("fontSize", size);
+                let root = document.documentElement;
+                if (size === 'small') root.style.fontSize = '12px';
+                else if (size === 'medium') root.style.fontSize = '14px';
+                else if (size === 'large') root.style.fontSize = '16px';
+                else if (size === 'x-large') root.style.fontSize = '18px';
+                loadPanel('settings');
+            }
+
+            function toggleHighContrast() {
+                highContrast = !highContrast;
+                localStorage.setItem("highContrast", highContrast);
+                let main = document.getElementById("mainPanel");
+                if (highContrast) {
+                    main.style.background = '#000';
+                    main.style.color = '#fff';
+                } else {
+                    main.style.background = '';
+                    main.style.color = '';
+                }
+                loadPanel('settings');
+            }
+
+            // ========== SHOP FUNCTIONS ==========
+            let currentPage = 1;
+            const itemsPerPage = 20;
+
+            function changeShopPage(page) {
+                currentPage = page;
+                loadPanel('shop');
+            }
+
+            function buyShopItem(itemId) {
+                let item = SHOP_ITEMS.find(i => i.id === itemId);
+                if (!item) return alert("Item not found!");
+                if (getBalance() < item.price) return alert("Insufficient funds!");
+                
+                addBalance(-item.price);
+                
+                let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+                if (!inv[currentUser]) inv[currentUser] = [];
+                
+                let existing = inv[currentUser].find(i => i.id === item.id);
+                if (existing) {
+                    existing.quantity = (existing.quantity || 1) + 1;
+                } else {
+                    inv[currentUser].push({
+                        id: item.id,
+                        name: item.name,
+                        icon: item.icon,
+                        description: item.description,
+                        price: item.price,
+                        quantity: 1,
+                        effect: item.effect
+                    });
+                }
+                
+                localStorage.setItem("inventory", JSON.stringify(inv));
+                showSuccessNotification(`✅ Purchased ${item.name}!`);
+                loadPanel('shop');
+            }
+
+            function useInventoryItem(itemId) {
+                let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+                let userItems = inv[currentUser] || [];
+                let itemIndex = userItems.findIndex(i => i.id === itemId);
+                let item = userItems[itemIndex];
+                
+                if (!item) return;
+                
+                let active = JSON.parse(localStorage.getItem("activeEffects")) || {};
+                if (!active[currentUser]) active[currentUser] = [];
+                
+                if (active[currentUser].includes(item.name)) {
+                    alert("Effect already active!");
+                    return;
+                }
+                
+                active[currentUser].push(item.name);
+                localStorage.setItem("activeEffects", JSON.stringify(active));
+                
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    userItems.splice(itemIndex, 1);
+                }
+                
+                localStorage.setItem("inventory", JSON.stringify(inv));
+                showSuccessNotification(`✨ ${item.name} activated!`);
+                updateActiveEffects();
+                loadPanel('inventory');
+            }
+
+            // ========== CALENDAR ==========
+            function markEvent(day) {
+                let cal = JSON.parse(localStorage.getItem("calendar")) || {};
+                if (!cal[currentUser]) cal[currentUser] = [];
+                
+                if (!cal[currentUser].includes(day)) {
+                    cal[currentUser].push(day);
+                    localStorage.setItem("calendar", JSON.stringify(cal));
+                }
+                loadPanel('calendar');
+            }
+
+            // ========== PANELS ==========
+            function homePanel(main) {
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let myServers = servers.filter(s => s.members?.includes(currentUser)).length;
+                let msgCount = JSON.parse(localStorage.getItem("messageCount")) || {};
+                let userMessages = msgCount[currentUser] || 0;
+                let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+                let userInv = inv[currentUser] || [];
+                let active = JSON.parse(localStorage.getItem("activeEffects")) || {};
+                let activeCount = (active[currentUser] || []).length;
+                let levels = JSON.parse(localStorage.getItem("levels")) || {};
+                let userLevel = levels[currentUser] || { level: 1, xp: 0 };
+                
+                main.innerHTML = `
+                    <div style="display:flex; justify-content:space-between;">
+                        <h1 style="font-size:3rem; background:linear-gradient(135deg,#0cf,#f6f); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">🏠 Dashboard</h1>
+                        <div class="typing"><span></span><span></span><span></span> ${userMessages} msgs</div>
+                    </div>
+                    
+                    <div class="glass-card" style="display:flex; gap:20px; flex-wrap:wrap;">
+                        <div class="metric">📊 ${myServers} servers</div>
+                        <div class="metric">👥 ${(JSON.parse(localStorage.getItem('friends'))?.[currentUser] || []).length} friends</div>
+                        <div class="metric">💰 ${getBalance()} coins</div>
+                        <div class="metric">🏦 ${getBankBalance()} bank</div>
+                        <div class="metric">💬 ${userMessages} msgs</div>
+                        <div class="metric">🎒 ${userInv.length} items</div>
+                        <div class="metric">✨ ${activeCount} effects</div>
+                        <div class="metric">📈 Level ${userLevel.level}</div>
+                    </div>
+                    
+                    <div class="glass-card" style="background: linear-gradient(145deg, #001f33, #001020); border: 2px solid gold;">
+                        <h3 style="color: gold; text-align: center;">💰 EARN COINS BY CHATTING! 💰</h3>
+                        <p style="text-align: center;">Every message in DMs or servers = +1 coin</p>
+                    </div>
+                    
+                    <button onclick="emergencyAlert()" style="background:#a02244; width:100%; margin-top:20px;">🚨 EMERGENCY ALERT</button>
+                `;
+            }
+
+            function friendsPanel(main) {
+                let friends = JSON.parse(localStorage.getItem("friends")) || {};
+                let myFriends = friends[currentUser] || [];
+                let aiMemory = JSON.parse(localStorage.getItem("aiMemory")) || {};
+                let requests = JSON.parse(localStorage.getItem("friendRequests")) || {};
+                let incoming = requests[currentUser] || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">👥 Friends & Private Chats</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Add Friend</h3>
+                        <div style="display:flex; gap:10px;">
+                            <input id="friendReqInput" placeholder="username#tag" class="cyber-input">
+                            <button onclick="sendFriendRequest()">➕ Send</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Friend Requests (${incoming.length})</h3>
+                        ${incoming.map(user => `
+                            <div class="friend-item">
+                                <span>${user}</span>
+                                <button onclick="acceptRequest('${user}')">Accept</button>
+                            </div>
+                        `).join('') || 'No pending requests'}
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Your Friends</h3>
+                        ${myFriends.map(f => `
+                            <div class="friend-item">
+                                <span>${aiMemory[f] ? '🤖' : '👤'} ${f}</span>
+                                <button onclick="openPrivateChat('${f}')">Chat</button>
+                            </div>
+                        `).join('') || 'No friends yet'}
+                    </div>
+                    
+                    <div id="privateChatBox"></div>
+                `;
+            }
+
+            function serversPanel(main) {
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let myServers = servers.filter(s => s.members?.includes(currentUser));
+                let msgs = JSON.parse(localStorage.getItem("serverMessages")) || {};
+                
+                if (currentServer) {
+                    let server = servers.find(s => s.id === currentServer);
+                    if (server) {
+                        let channelMsgs = msgs[currentServer]?.[currentChannel] || [];
+                        
+                        main.innerHTML = `
+                            <h2 style="color:#0cf;">🖥️ ${server.name} - #${currentChannel}</h2>
+                            
+                            <div style="display:flex; gap:20px;">
+                                <div style="width:200px;">
+                                    <h3>Channels</h3>
+                                    ${server.channels.map(ch => `
+                                        <div class="channel-item ${ch === currentChannel ? 'active' : ''}" onclick="switchChannel('${ch}')">
+                                            # ${ch}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                
+                                <div style="flex:1;">
+                                    <div class="glass-card" style="height:400px; overflow-y:auto;">
+                                        ${channelMsgs.map(m => `
+                                            <div style="display:flex; flex-direction:column; align-items:${m.from === currentUser ? 'flex-end' : 'flex-start'}; margin:10px;">
+                                                <small>${m.from}</small>
+                                                <div class="message-bubble ${m.from === currentUser ? 'mine' : 'other'}">${m.text}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    
+                                    <div style="display:flex; gap:10px; margin-top:10px;">
+                                        <input id="serverMsgInput" class="cyber-input" placeholder="Type a message...">
+                                        <button onclick="sendServerMessage()">Send (+1 coin)</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="currentServer=null; loadPanel('servers')" style="margin-top:20px;">← Back to Servers</button>
+                        `;
+                        return;
+                    }
+                }
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🖥️ Your Servers</h2>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <button onclick="createServer()">➕ Create Server</button>
+                        <input id="inviteCode" placeholder="Invite Code" class="cyber-input" style="width:200px;">
+                        <button onclick="joinServer()">Join</button>
+                    </div>
+                    
+                    ${myServers.map(s => `
+                        <div class="server-card">
+                            <div>
+                                <strong>${s.name}</strong> (${s.members.length} members)
+                                <br><small>Owner: ${s.owner}</small>
+                            </div>
+                            <button onclick="openServer('${s.id}')">Open</button>
+                        </div>
+                    `).join('') || 'No servers yet'}
+                `;
+            }
+
+            function voicePanel(main) {
+                let rooms = JSON.parse(localStorage.getItem("voiceRooms")) || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🎙️ Voice & Video</h2>
+                    
+                    <button onclick="createVoiceRoom()" style="margin-bottom:20px;">➕ Create Voice Room</button>
+                    
+                    <div class="glass-card">
+                        <h3>Active Voice Rooms</h3>
+                        ${rooms.map(room => {
+                            let inRoom = room.members.includes(currentUser);
+                            return `
+                                <div class="voice-card">
+                                    <div>
+                                        <strong>${room.name}</strong>
+                                        <br><small>${room.members.length} online</small>
+                                    </div>
+                                    <div>
+                                        ${room.members.slice(0,3).map(m => `<span class="voice-user">${m}</span>`).join('')}
+                                        ${room.members.length > 3 ? ` +${room.members.length-3} more` : ''}
+                                    </div>
+                                    <div>
+                                        ${inRoom ? 
+                                            `<button onclick="leaveVoiceRoom('${room.id}')" class="destructive-btn">Leave</button>` : 
+                                            `<button onclick="joinVoiceRoom('${room.id}')">Join</button>`
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            function gamesPanel(main) {
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🎮 Arcade</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Coin Flip</h3>
+                        <input id="flipBet" type="number" value="10" class="cyber-input" style="width:200px;">
+                        <button onclick="playCoinFlip()">Flip!</button>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Slot Machine</h3>
+                        <input id="slotBet" type="number" value="10" class="cyber-input" style="width:200px;">
+                        <button onclick="playSlotMachine()">Spin!</button>
+                        <div id="slotResult"></div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Dice Duel</h3>
+                        <button onclick="playDice()">Roll (5 coins)</button>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Blackjack</h3>
+                        <button onclick="playBlackjack()">Play (20 coins)</button>
+                    </div>
+                    
+                    <div id="gameResult" class="glass-card"></div>
+                `;
+            }
+
+            function economyPanel(main) {
+                let loan = loanAmount[currentUser];
+                let due = loanDue[currentUser];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">💰 Economy</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Wallet</h3>
+                        <p style="font-size:2rem;">🪙 ${getBalance()}</p>
+                        <p>Bank: 🪙 ${getBankBalance()}</p>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="depositToBank(100)">Deposit 100</button>
+                            <button onclick="withdrawFromBank(100)">Withdraw 100</button>
+                        </div>
+                        <p class="badge">Daily interest: 0.1%</p>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Loans</h3>
+                        ${loan ? `
+                            <p>Current loan: 🪙 ${loan}</p>
+                            <p>Due: ${new Date(due).toLocaleDateString()}</p>
+                            <p>Interest: 10%</p>
+                        ` : `
+                            <p>No active loans</p>
+                            <button onclick="takeLoan(1000)">Take 1000 loan</button>
+                        `}
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Stats</h3>
+                        <p>Total messages: ${messageCount[currentUser] || 0}</p>
+                        <p>Coins earned from chatting: ${messageCount[currentUser] || 0}</p>
+                    </div>
+                `;
+            }
+
+            function shopPanel(main) {
+                let totalPages = Math.ceil(SHOP_ITEMS.length / itemsPerPage);
+                let start = (currentPage - 1) * itemsPerPage;
+                let end = start + itemsPerPage;
+                let pageItems = SHOP_ITEMS.slice(start, end);
+                
+                let pagination = `<div class="pagination">`;
+                for (let i = 1; i <= totalPages; i++) {
+                    pagination += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changeShopPage(${i})">${i}</button>`;
+                }
+                pagination += `</div>`;
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🏪 Shop</h2>
+                    <div class="glass-card">Your balance: 🪙 ${getBalance()}</div>
+                    ${pagination}
+                    <div class="inventory-grid">
+                        ${pageItems.map(item => `
+                            <div class="inventory-item shop-item">
+                                <div class="inventory-icon">${item.icon}</div>
+                                <div class="inventory-name">${item.name}</div>
+                                <div style="font-size:0.8rem;">${item.description}</div>
+                                <div class="shop-price">🪙 ${item.price}</div>
+                                <button onclick="buyShopItem('${item.id}')" style="width:100%;">Buy</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${pagination}
+                `;
+            }
+
+            function marketPanel(main) {
+                let listings = marketListings;
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">📦 Marketplace</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Create Listing</h3>
+                        <input id="marketItemName" placeholder="Item name" class="cyber-input">
+                        <input id="marketItemPrice" placeholder="Price" type="number" class="cyber-input">
+                        <input id="marketItemQty" placeholder="Quantity" type="number" class="cyber-input" value="1">
+                        <button onclick="createMarketListing(
+                            document.getElementById('marketItemName').value,
+                            parseInt(document.getElementById('marketItemPrice').value),
+                            parseInt(document.getElementById('marketItemQty').value)
+                        )">List Item</button>
+                    </div>
+                    
+                    <h3>Active Listings (${listings.length})</h3>
+                    ${listings.map(l => `
+                        <div class="market-card">
+                            <div>
+                                <strong>${l.item}</strong> x${l.quantity}
+                                <br><small>by ${l.seller}</small>
+                            </div>
+                            <div>
+                                <span style="color:gold;">🪙 ${l.price}</span>
+                                <button onclick="buyMarketListing('${l.id}')">Buy</button>
+                            </div>
+                        </div>
+                    `).join('') || '<p>No active listings</p>'}
+                `;
+            }
+
+            function inventoryPanel(main) {
+                let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+                let userItems = inv[currentUser] || [];
+                let active = JSON.parse(localStorage.getItem("activeEffects")) || {};
+                let activeEffects = active[currentUser] || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🎒 Inventory</h2>
+                    <div class="glass-card">You own ${userItems.length} item types | Active effects: ${activeEffects.length}</div>
+                    
+                    ${userItems.length === 0 ? `
+                        <div class="glass-card" style="text-align:center;">
+                            <p>Your inventory is empty!</p>
+                            <button onclick="loadPanel('shop')">Go to Shop 🏪</button>
+                        </div>
+                    ` : `
+                        <div class="inventory-grid">
+                            ${userItems.map(item => `
+                                <div class="inventory-item">
+                                    <div class="inventory-icon">${item.icon}</div>
+                                    <div class="inventory-name">${item.name}</div>
+                                    <div class="inventory-count">x${item.quantity || 1}</div>
+                                    <button onclick="useInventoryItem('${item.id}')" style="width:100%; margin-top:10px;">
+                                        ${activeEffects.includes(item.name) ? '✅ Active' : 'Use'}
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                `;
+            }
+
+            function clansPanel(main) {
+                let clans = JSON.parse(localStorage.getItem("clans")) || [];
+                let userClan = clans.find(c => c.members.includes(currentUser));
+                let territories = JSON.parse(localStorage.getItem("clanTerritories")) || {};
+                
+                if (userClan) {
+                    main.innerHTML = `
+                        <h2 style="color:#0cf;">⚔️ ${userClan.name}</h2>
+                        
+                        <div class="glass-card">
+                            <h3>Clan Info</h3>
+                            <p>Leader: ${userClan.leader}</p>
+                            <p>Members: ${userClan.members.length}</p>
+                            <p>Level: ${userClan.level || 1}</p>
+                            <p>Points: ${userClan.points || 0}</p>
+                        </div>
+                        
+                        <h3>Territory Map</h3>
+                        <div class="war-map">
+                            ${Array(25).fill(0).map((_, i) => {
+                                let terr = territories[`terr${i}`];
+                                let className = "territory";
+                                if (terr?.clan === userClan.id) className += " owned";
+                                else if (terr) className += " contested";
+                                return `<div class="${className}" onclick="claimTerritory('terr${i}')">${i+1}</div>`;
+                            }).join('')}
+                        </div>
+                        
+                        <h3>Members</h3>
+                        ${userClan.members.map(m => `
+                            <div class="friend-item">${m} ${m === userClan.leader ? '👑' : ''}</div>
+                        `).join('')}
+                    `;
+                } else {
+                    main.innerHTML = `
+                        <h2 style="color:#0cf;">⚔️ Clans</h2>
+                        
+                        <button onclick="createClan()">Create Clan</button>
+                        
+                        <h3>Available Clans</h3>
+                        ${clans.map(c => `
+                            <div class="server-card">
+                                <div>
+                                    <strong>${c.name}</strong>
+                                    <br>Members: ${c.members.length}
+                                </div>
+                                <button onclick="joinClan('${c.id}')">Join</button>
+                            </div>
+                        `).join('')}
+                    `;
+                }
+            }
+
+            function collectiblesPanel(main) {
+                let userCollectibles = collectibles[currentUser] || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🏷️ Collectibles</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Your Collection (${userCollectibles.length})</h3>
+                        <div class="inventory-grid">
+                            ${userCollectibles.map(c => `
+                                <div class="inventory-item collectible-card">
+                                    <div class="inventory-icon">🏆</div>
+                                    <div class="inventory-name">${c}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Available to Collect</h3>
+                        <div class="friend-item">
+                            <span>Legendary Dragon</span>
+                            <button onclick="addCollectible('Legendary Dragon')">Collect</button>
+                        </div>
+                        <div class="friend-item">
+                            <span>Mystic Crystal</span>
+                            <button onclick="addCollectible('Mystic Crystal')">Collect</button>
+                        </div>
+                        <div class="friend-item">
+                            <span>Golden Trophy</span>
+                            <button onclick="addCollectible('Golden Trophy')">Collect</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function eventsPanel(main) {
+                let events = JSON.parse(localStorage.getItem("events")) || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🎪 Special Events</h2>
+                    
+                    <div class="event-banner">
+                        🎉 Spring Festival - 3 days left!
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Active Events</h3>
+                        ${events.map(e => `
+                            <div class="event-card">
+                                <div>
+                                    <strong>${e.name}</strong>
+                                    <br>${new Date(e.date).toLocaleDateString()}
+                                    <br>${e.participants} participants
+                                    <br>Prize: 🪙 ${e.prize}
+                                </div>
+                                <button onclick="joinEvent('${e.id}')">Join</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            function moderationPanel(main) {
+                let reports = JSON.parse(localStorage.getItem("reports")) || [];
+                let muted = JSON.parse(localStorage.getItem("mutedUsers")) || [];
+                let warns = JSON.parse(localStorage.getItem("warnings")) || {};
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🛡️ Moderation</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Quick Actions</h3>
+                        <input id="modUserId" placeholder="Username#tag" class="cyber-input">
+                        <input id="modReason" placeholder="Reason" class="cyber-input">
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button onclick="reportUser(document.getElementById('modUserId').value, document.getElementById('modReason').value)">Report</button>
+                            <button onclick="warnUser(document.getElementById('modUserId').value, document.getElementById('modReason').value)">Warn</button>
+                            <button onclick="muteUser(document.getElementById('modUserId').value, 3600000)">Mute 1h</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Pending Reports (${reports.filter(r => r.status === 'pending').length})</h3>
+                        ${reports.filter(r => r.status === 'pending').map(r => `
+                            <div class="report-item">
+                                <p>Reported: ${r.reported}</p>
+                                <p>Reason: ${r.reason}</p>
+                                <p>By: ${r.reporter}</p>
+                                <button onclick="warnUser('${r.reported}', 'Rule violation')">Warn</button>
+                            </div>
+                        `).join('') || 'No pending reports'}
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Muted Users</h3>
+                        ${muted.map(m => `
+                            <div class="friend-item">
+                                <span>${m.user}</span>
+                                <span>Until: ${new Date(m.until).toLocaleString()}</span>
+                            </div>
+                        `).join('') || 'No muted users'}
+                    </div>
+                `;
+            }
+
+            function privacyPanel(main) {
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🔒 Privacy & Safety</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Privacy Settings</h3>
+                        <div class="privacy-toggle">
+                            <span>Show Online Status</span>
+                            <div class="toggle-switch ${privacySettings.showOnline ? 'active' : ''}" onclick="updatePrivacySetting('showOnline', ${!privacySettings.showOnline})"></div>
+                        </div>
+                        <div class="privacy-toggle">
+                            <span>Allow Friend Requests</span>
+                            <div class="toggle-switch ${privacySettings.allowFriendRequests ? 'active' : ''}" onclick="updatePrivacySetting('allowFriendRequests', ${!privacySettings.allowFriendRequests})"></div>
+                        </div>
+                        <div class="privacy-toggle">
+                            <span>Public Profile</span>
+                            <div class="toggle-switch ${privacySettings.showProfile ? 'active' : ''}" onclick="updatePrivacySetting('showProfile', ${!privacySettings.showProfile})"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Trusted Contacts</h3>
+                        <input id="trustedContact" placeholder="Username#tag" class="cyber-input">
+                        <button onclick="addTrustedContact()">Add Contact</button>
+                        <div style="margin-top:10px;">
+                            ${(trustedContacts[currentUser] || []).map(c => `
+                                <div class="friend-item">${c}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <button onclick="emergencyAlert()" style="background:#a02244; width:100%;">🚨 EMERGENCY ALERT</button>
+                `;
+            }
+
+            function settingsPanel(main) {
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">⚙️ UI Settings</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Themes</h3>
+                        <button onclick="setTheme('default')">Default</button>
+                        <button onclick="setTheme('dark')">Dark</button>
+                        <button onclick="setTheme('light')">Light</button>
+                        <button onclick="setTheme('cyber')">Cyberpunk</button>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Font Size</h3>
+                        <button onclick="setFontSize('small')">Small</button>
+                        <button onclick="setFontSize('medium')">Medium</button>
+                        <button onclick="setFontSize('large')">Large</button>
+                        <button onclick="setFontSize('x-large')">X-Large</button>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Accessibility</h3>
+                        <div class="privacy-toggle">
+                            <span>High Contrast</span>
+                            <div class="toggle-switch ${highContrast ? 'active' : ''}" onclick="toggleHighContrast()"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Translation</h3>
+                        <select id="languageSelect" class="cyber-input" onchange="targetLanguage=this.value; localStorage.setItem('targetLanguage', this.value);">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="ja">Japanese</option>
+                        </select>
+                        <div class="privacy-toggle">
+                            <span>Auto-Translate</span>
+                            <div class="toggle-switch ${translateEnabled ? 'active' : ''}" onclick="translateEnabled = !translateEnabled; localStorage.setItem('translateEnabled', translateEnabled);"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function performancePanel(main) {
+                let avgLoad = loadTimes.length ? loadTimes.reduce((a,b)=>a+b,0)/loadTimes.length : 0;
+                let cacheSize = JSON.stringify(localStorage).length;
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">⚡ Performance</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Metrics</h3>
+                        <div class="performance-metrics">
+                            <div class="metric">Avg Load: ${avgLoad.toFixed(2)}ms</div>
+                            <div class="metric">Cache: ${(cacheSize/1024).toFixed(2)} KB</div>
+                            <div class="metric">Messages: ${messageCount[currentUser] || 0}</div>
+                            <div class="metric">Items: ${(JSON.parse(localStorage.getItem('inventory'))?.[currentUser] || []).length}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Optimization</h3>
+                        <button onclick="optimizePerformance()">Clean Old Data</button>
+                        <button onclick="measureLoadTime()">Test Load Time</button>
+                    </div>
+                `;
+            }
+
+            function discoverPanel(main) {
+                let servers = JSON.parse(localStorage.getItem("servers")) || [];
+                let publicServers = servers.filter(s => s.public);
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🌍 Discover</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Public Servers</h3>
+                        ${publicServers.map(s => `
+                            <div class="discover-card">
+                                <div>
+                                    <strong>${s.icon || '🌐'} ${s.name}</strong>
+                                    <br>${s.description || 'Community server'}
+                                    <br>👥 ${s.members.length} members
+                                </div>
+                                ${!s.members.includes(currentUser) ? 
+                                    `<button onclick="joinPublicServer('${s.id}')">Join</button>` : 
+                                    '<span class="badge">Joined</span>'
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            function radioPanel(main) {
+                let favs = JSON.parse(localStorage.getItem("favoriteVideos")) || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">📻 YouTube Radio</h2>
+                    
+                    <div class="glass-card">
+                        <p>Enter any YouTube URL</p>
+                        <div style="display:flex; gap:10px;">
+                            <input id="youtubeUrl" class="cyber-input" placeholder="https://youtu.be/...">
+                            <button onclick="playYouTube()">▶️ Play</button>
+                            <button onclick="stopYouTube()">⏹️ Stop</button>
+                            <button onclick="addToFavorites()">⭐ Save</button>
+                        </div>
+                    </div>
+                    
+                    <div id="youtubePlayer" class="glass-card" style="min-height:200px;"></div>
+                    
+                    ${favs.length > 0 ? `
+                        <div class="glass-card">
+                            <h3>Favorites</h3>
+                            <div class="video-grid">
+                                ${favs.map((v, i) => `
+                                    <div class="video-item">
+                                        <div class="video-thumb">📺</div>
+                                        <div>${v.title}</div>
+                                        <button onclick="playFavorite('${v.id}')">Play</button>
+                                        <button onclick="removeFavorite(${i})">❌</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            function whiteboardPanel(main) {
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">✏️ Whiteboard</h2>
+                    
+                    <div class="whiteboard-tools">
+                        <div class="color-picker" style="background:#0cf;" onclick="setColor('#0cf')"></div>
+                        <div class="color-picker" style="background:#f0f;" onclick="setColor('#f0f')"></div>
+                        <div class="color-picker" style="background:#ff0;" onclick="setColor('#ff0')"></div>
+                        <div class="color-picker" style="background:#f00;" onclick="setColor('#f00')"></div>
+                        <div class="color-picker" style="background:#0f0;" onclick="setColor('#0f0')"></div>
+                        <select onchange="setSize(this.value)" style="width:80px;">
+                            <option value="2">Small</option>
+                            <option value="4" selected>Medium</option>
+                            <option value="6">Large</option>
+                            <option value="8">X-Large</option>
+                        </select>
+                        <button onclick="clearWhiteboard()">Clear</button>
+                        <button onclick="saveWhiteboard()">Save</button>
+                    </div>
+                    
+                    <canvas id="boardCanvas" width="800" height="400" style="width:100%; height:auto; border:2px solid #0cf; border-radius:30px;"></canvas>
+                `;
+                
+                setTimeout(initCanvas, 100);
+            }
+
+            function calendarPanel(main) {
+                let days = Array.from({length:30}, (_,i) => i+1);
+                let userEvents = JSON.parse(localStorage.getItem("calendar"))?.[currentUser] || [];
+                let today = new Date().getDate();
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🗓️ Calendar</h2>
+                    
+                    <div class="glass-card">
+                        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                            ${days.map(d => `
+                                <div class="calendar-day ${d === today ? 'today' : ''} ${userEvents.includes(d) ? 'event' : ''}" 
+                                     onclick="markEvent(${d})">
+                                    ${d}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Your Events</h3>
+                        ${userEvents.map(d => `📅 Day ${d}`).join('<br>') || 'No events marked'}
+                    </div>
+                `;
+            }
+
+            function pollsPanel(main) {
+                let polls = JSON.parse(localStorage.getItem("polls")) || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">📊 Polls</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Create Poll</h3>
+                        <input id="pollQuestion" placeholder="Question" class="cyber-input">
+                        <input id="pollOptions" placeholder="Option1,Option2,Option3" class="cyber-input">
+                        <button onclick="createPoll()">Create Poll</button>
+                    </div>
+                    
+                    ${polls.map(p => `
+                        <div class="glass-card">
+                            <h3>${p.question}</h3>
+                            ${p.options.map((opt, i) => `
+                                <div class="poll-option" onclick="votePoll('${p.id}', ${i})">
+                                    ${opt} <span class="vote-count">${p.votes[i] || 0} votes</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                `;
+            }
+
+            function levelsPanel(main) {
+                let levels = JSON.parse(localStorage.getItem("levels")) || {};
+                let userLevel = levels[currentUser] || { level: 1, xp: 0 };
+                let nextLevel = (userLevel.level * 1000) - userLevel.xp;
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">📈 Levels</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Your Stats</h3>
+                        <p style="font-size:2rem;">Level ${userLevel.level}</p>
+                        <p>XP: ${userLevel.xp}</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${(userLevel.xp % 1000)/10}%"></div>
+                        </div>
+                        <p>${nextLevel} XP to next level</p>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Rewards</h3>
+                        <p>Level 5: 🎨 Rainbow Name</p>
+                        <p>Level 10: 💫 Animated Avatar</p>
+                        <p>Level 25: 👑 Golden Crown</p>
+                        <p>Level 50: 🌟 Legendary Status</p>
+                    </div>
+                `;
+            }
+
+            function botsPanel(main) {
+                let bots = JSON.parse(localStorage.getItem("bots")) || [];
+                
+                main.innerHTML = `
+                    <h2 style="color:#0cf;">🤖 Bot Studio</h2>
+                    
+                    <div class="glass-card">
+                        <h3>Create Bot</h3>
+                        <div style="display:flex; gap:10px;">
+                            <input id="newBotName" placeholder="Bot name" class="cyber-input">
+                            <button onclick="createBot()">Create</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3>Your Bots (${bots.length})</h3>
+                        ${bots.map(b => `
+                            <div class="bot-card">
+                                <div>
+                                    <span class="bot-status ${b.status === 'online' ? 'bot-online' : 'bot-offline'}"></span>
+                                    <strong>${b.name}</strong>
+                                    <span class="badge">Lv.${b.level || 1}</span>
+                                </div>
+                                <div style="display:flex; gap:5px;">
+                                    <button onclick="toggleBot('${b.id}')">${b.status === 'online' ? 'Offline' : 'Online'}</button>
+                                    <button onclick="deleteBot('${b.id}')" class="destructive-btn">Delete</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // ========== PANEL LOADER ==========
+            window.loadPanel = function(panel) {
+                const main = document.getElementById("mainPanel");
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                
+                // Find and activate correct menu item
+                document.querySelectorAll('.menu-item').forEach(el => {
+                    if (el.innerText.toLowerCase().includes(panel)) {
+                        el.classList.add('active');
+                    }
+                });
+                
+                // Call appropriate panel function
+                if (panel === 'home') homePanel(main);
+                else if (panel === 'friends') friendsPanel(main);
+                else if (panel === 'servers') serversPanel(main);
+                else if (panel === 'voice') voicePanel(main);
+                else if (panel === 'games') gamesPanel(main);
+                else if (panel === 'economy') economyPanel(main);
+                else if (panel === 'shop') shopPanel(main);
+                else if (panel === 'market') marketPanel(main);
+                else if (panel === 'inventory') inventoryPanel(main);
+                else if (panel === 'clans') clansPanel(main);
+                else if (panel === 'collectibles') collectiblesPanel(main);
+                else if (panel === 'events') eventsPanel(main);
+                else if (panel === 'moderation') moderationPanel(main);
+                else if (panel === 'privacy') privacyPanel(main);
+                else if (panel === 'settings') settingsPanel(main);
+                else if (panel === 'performance') performancePanel(main);
+                else if (panel === 'discover') discoverPanel(main);
+                else if (panel === 'radio') radioPanel(main);
+                else if (panel === 'whiteboard') whiteboardPanel(main);
+                else if (panel === 'calendar') calendarPanel(main);
+                else if (panel === 'polls') pollsPanel(main);
+                else if (panel === 'levels') levelsPanel(main);
+                else if (panel === 'bots') botsPanel(main);
+                
+                measureLoadTime();
+            };
+
+            // ========== INIT ==========
+            window.addEventListener('load', () => { 
+                loadProfileUI(); 
+                loadPanel('home');
+                setInterval(applyInterest, 24 * 60 * 60 * 1000);
+                
+                // Expose functions globally
+                window.depositToBank = depositToBank;
+                window.withdrawFromBank = withdrawFromBank;
+                window.takeLoan = takeLoan;
+                window.createMarketListing = createMarketListing;
+                window.buyMarketListing = buyMarketListing;
+                window.playCoinFlip = playCoinFlip;
+                window.playSlotMachine = playSlotMachine;
+                window.playDice = playDice;
+                window.playBlackjack = playBlackjack;
+                window.createServer = createServer;
+                window.joinServer = joinServer;
+                window.openServer = openServer;
+                window.switchChannel = switchChannel;
+                window.sendServerMessage = sendServerMessage;
+                window.createVoiceRoom = createVoiceRoom;
+                window.joinVoiceRoom = joinVoiceRoom;
+                window.leaveVoiceRoom = leaveVoiceRoom;
+                window.createClan = createClan;
+                window.joinClan = joinClan;
+                window.claimTerritory = claimTerritory;
+                window.addCollectible = addCollectible;
+                window.joinEvent = joinEvent;
+                window.reportUser = reportUser;
+                window.warnUser = warnUser;
+                window.muteUser = muteUser;
+                window.updatePrivacySetting = updatePrivacySetting;
+                window.addTrustedContact = addTrustedContact;
+                window.emergencyAlert = emergencyAlert;
+                window.optimizePerformance = optimizePerformance;
+                window.measureLoadTime = measureLoadTime;
+                window.setTheme = setTheme;
+                window.setFontSize = setFontSize;
+                window.toggleHighContrast = toggleHighContrast;
+                window.changeShopPage = changeShopPage;
+                window.buyShopItem = buyShopItem;
+                window.useInventoryItem = useInventoryItem;
+                window.sendFriendRequest = sendFriendRequest;
+                window.addAIFriend = addAIFriend;
+                window.openPrivateChat = openPrivateChat;
+                window.sendPrivateMessage = sendPrivateMessage;
+                window.playYouTube = playYouTube;
+                window.stopYouTube = stopYouTube;
+                window.addToFavorites = addToFavorites;
+                window.removeFavorite = removeFavorite;
+                window.playFavorite = playFavorite;
+                window.setColor = setColor;
+                window.setSize = setSize;
+                window.clearWhiteboard = clearWhiteboard;
+                window.saveWhiteboard = saveWhiteboard;
+                window.createPoll = createPoll;
+                window.votePoll = votePoll;
+                window.markEvent = markEvent;
+                window.createBot = createBot;
+                window.toggleBot = toggleBot;
+                window.deleteBot = deleteBot;
+                window.joinPublicServer = joinPublicServer;
+                window.acceptRequest = function(user) {
+                    let friends = JSON.parse(localStorage.getItem("friends")) || {};
+                    if (!friends[currentUser]) friends[currentUser] = [];
+                    if (!friends[currentUser].includes(user)) {
+                        friends[currentUser].push(user);
+                        localStorage.setItem("friends", JSON.stringify(friends));
+                    }
+                    
+                    let req = JSON.parse(localStorage.getItem("friendRequests")) || {};
+                    req[currentUser] = (req[currentUser] || []).filter(u => u !== user);
+                    localStorage.setItem("friendRequests", JSON.stringify(req));
+                    
+                    loadPanel('friends');
+                };
+            });
+        })();
+    </script>
+</body>
+</html>

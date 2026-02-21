@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    /* SAFE SUPABASE INITIALIZATION — prevents white screen */
+    let supabaseClient = null;
+
+    if (window.supabase) {
+      supabaseClient = supabase.createClient(
+        "https://wkxsprmhluyrlpzfwlnt.supabase.co",
+        "sb_publishable_1SajGL5XRZBo8I4QIFGLaA_IJaHb_xQ"
+      );
+    } else {
+      console.warn("Supabase failed to load. Login will still work locally.");
+    }
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Orbitron", sans-serif;
+      background: radial-gradient(circle at top, #0ff 0, #001020 40%, #000 100%);
+      color: white;
+      overflow: hidden;
+    }
+
+    .login-box {
+      background: rgba(0, 20, 40, 0.6);
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid #00eaff;
+      box-shadow: 0 0 25px #00eaff;
+      text-align: center;
+      width: 350px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px #00eaff;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #00eaff;
+      background: #000814;
+      color: white;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    button {
+      padding: 12px 30px;
+      background: #003a66;
+      border: 1px solid #00eaff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #005a99;
+      box-shadow: 0 0 15px #00eaff;
+    }
+
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 10px;
+      font-size: 14px;
+      height: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+    <h1>𝐂𝐨𝐧𝐧𝐞𝐗𝐢𝐨𝐧</h1>
+    <p>Log in to your account</p>
+
+    <div class="error" id="errorMsg"></div>
+
+    <input id="usernameInput" type="text" placeholder="Username">
+    <input id="passwordInput" type="password" placeholder="Password">
+
+    <button onclick="login()">Log In</button>
+
+    <p style="margin-top:20px; font-size:14px;">
+      Don’t have an account?  
+      <a href="sign-up.html" style="color:#00eaff;">Sign up</a>
+    </p>
+  </div>
+
+  <script>
+    async function login() {
+      const usernameInput = document.getElementById("usernameInput").value.trim();
+      const password = document.getElementById("passwordInput").value.trim();
+      const error = document.getElementById("errorMsg");
+
+      if (!usernameInput || !password) {
+        error.textContent = "Please fill out all fields.";
+        return;
+      }
+
+      /* Convert typed username → Supabase email */
+      const safeEmail = usernameInput.replace(/[^a-zA-Z0-9]/g, "") + "@connexion.com";
+
+      /* Try Supabase login ONLY if Supabase loaded */
+      if (supabaseClient) {
+        const { error: loginError } = await supabaseClient.auth.signInWithPassword({
+          email: safeEmail,
+          password: password
+        });
+
+        if (loginError) {
+          error.textContent = "Incorrect username or password.";
+          return;
+        }
+      }
+
+      /* ⭐ Load REAL username with tag from localStorage */
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+
+      const matchedUser = users.find(u => {
+        const base = u.username.split("#")[0];
+        return u.username === usernameInput || base === usernameInput;
+      });
+
+      if (!matchedUser) {
+        error.textContent = "Account exists in Supabase but not locally.";
+        return;
+      }
+
+      const finalName = matchedUser.username;
+
+      /* ⭐ Save correct username for the app */
+      localStorage.setItem("currentUser", finalName);
+      localStorage.setItem("connexionUsername", finalName);
+
+      /* Redirect */
+      window.location.href = "App.html";
+    }
+  </script>
+
+</body>
+</html>
